@@ -109,7 +109,7 @@ public class Homepage extends JPanel {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Five Nights at Java");
+        JFrame frame = new JFrame("The Last Fugue");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setUndecorated(true);
         frame.add(new Homepage(frame));
