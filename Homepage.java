@@ -1,66 +1,58 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import javax.sound.sampled.*;
 import javax.swing.*;
 
+// Main Class for Homepage (Main Menu)
 public class Homepage extends JPanel {
-    JButton startbutton;
-    JButton settingbutton = new JButton("Setting");
-    JButton exitbutton = new JButton("Exit");
+    private JButton startButton, settingButton, exitButton;
     private Image backgroundImage;
     private Clip clip;
-    private JFrame frame; 
+    private JFrame frame;
 
-    Homepage(JFrame frame) {
-        this.frame = frame; 
-        ImageIcon startIcon = new ImageIcon("Start button1.png");
-        ImageIcon bghomeIcon = new ImageIcon("bgghome.gif");
-        backgroundImage = bghomeIcon.getImage();
+    public Homepage(JFrame frame) {
+        this.frame = frame;
+        initUI();
+        playMusic("FREEG.wav"); 
+    }
 
-        startbutton = new JButton(startIcon);
-        startbutton.setBorderPainted(false);
-        startbutton.setContentAreaFilled(false);
-        startbutton.setFocusPainted(false);
-        startbutton.setMargin(null);
+    private void initUI() {
+        ImageIcon bgIcon = new ImageIcon("bgghome.gif"); 
+        backgroundImage = bgIcon.getImage();
 
-        startbutton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showNextScreen();
-            }
-        });
-
-        settingbutton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showSetting();
-            }
-        });
-
-        exitbutton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Window window = SwingUtilities.getWindowAncestor(Homepage.this);
-                if (window != null) {
-                    window.dispose();
-                }
-            }
-        });
+        startButton = createImageButton("Start button1.png", e -> startGame()); 
+        settingButton = createTextButton("Setting", e -> showSettings());
+        exitButton = createTextButton("Exit", e -> exitGame());
 
         setLayout(new GridBagLayout());
-        GridBagConstraints gid = new GridBagConstraints();
-        gid.gridx = 0;
-        gid.gridy = GridBagConstraints.RELATIVE;
-        gid.insets = new Insets(10, 0, 10, 0);
-        gid.anchor = GridBagConstraints.CENTER;
-        gid.fill = GridBagConstraints.HORIZONTAL;
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.insets = new Insets(10, 0, 10, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
 
-        add(startbutton, gid);
-        add(settingbutton, gid);
-        add(exitbutton, gid);
-        playMusic("FREEG.wav");
+        add(startButton, gbc);
+        add(settingButton, gbc);
+        add(exitButton, gbc);
+    }
+
+    private JButton createImageButton(String iconPath, ActionListener action) {
+        ImageIcon icon = new ImageIcon(iconPath);
+        JButton button = new JButton(icon);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setMargin(null);
+        button.addActionListener(action);
+        return button;
+    }
+
+    private JButton createTextButton(String text, ActionListener action) {
+        JButton button = new JButton(text);
+        button.addActionListener(action);
+        button.setFocusPainted(false);
+        return button;
     }
 
     @Override
@@ -69,13 +61,27 @@ public class Homepage extends JPanel {
         g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
     }
 
-    private void showNextScreen() {
-        JOptionPane.showMessageDialog(this, "Moving to the next screen...");
+    private void startGame() {
+        frame.getContentPane().removeAll();
+
+        // Create and add the InitGameUI to the frame
+        InitGameUI initGameUI = new InitGameUI(frame);
+        frame.add(initGameUI);
+
+        frame.revalidate();
+        frame.repaint();
     }
 
-    private void showSetting() {
+    private void showSettings() {
         SettingsPanel settingsPanel = new SettingsPanel(this, frame);
         JOptionPane.showMessageDialog(this, settingsPanel, "Settings", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private void exitGame() {
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (window != null) {
+            window.dispose();
+        }
     }
 
     private void playMusic(String filePath) {
@@ -103,67 +109,11 @@ public class Homepage extends JPanel {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("The Last Refuge");
-        Homepage home = new Homepage(frame);
-        frame.add(home);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        JFrame frame = new JFrame("Five Nights at Java");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setUndecorated(true); 
+        frame.setUndecorated(true);
+        frame.add(new Homepage(frame));
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setVisible(true);
-    }
-}
-
-class SettingsPanel extends JPanel {
-    private Homepage homepage;
-    private JButton muteButton;
-    private JComboBox<String> sizeDropdown;
-    private boolean isMuted = false;
-
-    public SettingsPanel(Homepage homepage, JFrame frame) {
-        this.homepage = homepage;
-
-        muteButton = new JButton("Mute Music");
-        muteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toggleMusic();
-            }
-        });
-
-
-        String[] sizes = {"800x600", "1024x768", "1280x800", "1600x900", "1920x1080"};
-        sizeDropdown = new JComboBox<>(sizes);
-        sizeDropdown.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                resizeWindow(frame);
-            }
-        });
-
-        setLayout(new GridLayout(3, 1));
-        add(muteButton);
-        add(sizeDropdown);
-    }
-
-    private void toggleMusic() {
-        if (isMuted) {
-            homepage.resumeMusic();
-            muteButton.setText("Mute Music");
-        } else {
-            homepage.stopMusic();
-            muteButton.setText("Unmute Music");
-        }
-        isMuted = !isMuted;
-    }
-
-    private void resizeWindow(JFrame frame) {
-        String selectedSize = (String) sizeDropdown.getSelectedItem();
-        if (selectedSize != null) {
-            String[] dimensions = selectedSize.split("x");
-            int width = Integer.parseInt(dimensions[0]);
-            int height = Integer.parseInt(dimensions[1]);
-            frame.setSize(width, height);
-            frame.setLocationRelativeTo(null);
-        }
     }
 }
