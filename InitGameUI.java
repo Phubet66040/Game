@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.awt.*; 
 import java.awt.event.*;
 import java.util.Random;
 import javax.swing.*;
@@ -9,7 +9,7 @@ public class InitGameUI extends JPanel {
     private boolean isDoorLocked = false;
     private boolean isWatchingCamera = false;
     private int power = 100;
-    private int hour = 12;
+    private int hour = 0;
     private Timer powerTimer;
     private Timer gameTimer;
     private Timer monsterTimer;
@@ -31,12 +31,10 @@ public class InitGameUI extends JPanel {
         ImageIcon bg1Icon = new ImageIcon("bgcctv.jpg");
         background = bg1Icon.getImage();
 
-
-        doorArea = new Rectangle(50, 80, 170, 500);
+        doorArea = new Rectangle(50, 175, 195, 450);
         cameraArea = new Rectangle(700, 100, 200, 200);
         monitorArea = new Rectangle(600, 50, 300, 250);
 
-      
         gameMessage = new JLabel("Survive the night!", SwingConstants.CENTER);
         gameMessage.setFont(new Font("VT323", Font.BOLD, 36));
         gameMessage.setForeground(Color.WHITE);
@@ -62,7 +60,6 @@ public class InitGameUI extends JPanel {
     }
 
     private void startGameTimers() {
-        
         powerTimer = new Timer(1000, e -> {
             int drain = 1;
             if (isDoorLocked) drain += 2;
@@ -75,18 +72,18 @@ public class InitGameUI extends JPanel {
             repaint();
         });
         powerTimer.start();
-
-        
+    
         gameTimer = new Timer(20000, e -> { 
             hour++;
             if (hour >= 6) {
                 victory();
+            } else {
+               
             }
             repaint();
         });
         gameTimer.start();
-
-       
+    
         monsterTimer = new Timer(5000, e -> {
             if (!isDoorLocked && random.nextInt(100) < 30) {
                 isMonsterNear = true;
@@ -100,10 +97,11 @@ public class InitGameUI extends JPanel {
         });
         monsterTimer.start();
     }
+    
 
     private void toggleDoor() {
         isDoorLocked = !isDoorLocked;
-        playSound("door_" + (isDoorLocked ? "close" : "open") + ".wav");
+        playSound("door_" + (isDoorLocked ? "open" : "open") + ".wav");
         power -= 5;
         repaint();
     }
@@ -131,7 +129,7 @@ public class InitGameUI extends JPanel {
     private void victory() {
         stopTimers();
         gameMessage.setText("You survived the night!");
-        JOptionPane.showMessageDialog(this, "Congratulations! You survived until 6 AM!");
+        JOptionPane.showMessageDialog(this, "You survived in this night!");
         System.exit(0);
     }
 
@@ -142,7 +140,6 @@ public class InitGameUI extends JPanel {
     }
 
     private void playSound(String soundFile) {
-        
         System.out.println("Playing sound: " + soundFile);
     }
 
@@ -152,36 +149,29 @@ public class InitGameUI extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-       
         g2d.drawImage(background, 0, 0, getWidth(), getHeight(), this);
 
-       
         if (!isWatchingCamera) {
             drawOfficeView(g2d);
         } else {
             drawCameraView(g2d);
         }
 
-       
         drawHUD(g2d);
 
-        
         if (showStatic) {
             drawStaticEffect(g2d);
         }
     }
 
     private void drawOfficeView(Graphics2D g2d) {
-       
         g2d.setColor(isDoorLocked ? new Color(0, 255, 0, 100) : new Color(255, 0, 0, 100));
         g2d.fill(doorArea);
-        
-       
+
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
         g2d.drawString(isDoorLocked ? "LOCKED" : "UNLOCKED", 80, 80);
 
-        
         if (isMonsterNear && !isDoorLocked) {
             g2d.setColor(Color.RED);
             g2d.fillOval(30, 300, 50, 50);
@@ -189,37 +179,31 @@ public class InitGameUI extends JPanel {
     }
 
     private void drawCameraView(Graphics2D g2d) {
-       
         g2d.setColor(new Color(0, 0, 0, 180));
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
-       
         g2d.setColor(Color.GREEN);
         g2d.setFont(new Font("VT323", Font.PLAIN, 16));
         for (int i = 0; i < 4; i++) {
-            g2d.drawRect(100 + i*200, 100, 180, 120);
-            g2d.drawString("CAM " + (i+1), 180 + i*200, 160);
+            g2d.drawRect(100 + i * 200, 100, 180, 120);
+            g2d.drawString("CAM " + (i + 1), 180 + i * 200, 160);
         }
 
-        
         drawStaticEffect(g2d);
     }
 
     private void drawHUD(Graphics2D g2d) {
-       
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
         g2d.drawString("Power: " + power + "%", 20, 30);
-        
-      
+    
         g2d.setColor(power < 20 ? Color.RED : Color.GREEN);
         g2d.fillRect(20, 40, power * 2, 20);
-        
-       
+    
         g2d.setColor(Color.WHITE);
         g2d.drawString(hour + " AM", getWidth() - 100, 30);
     }
-
+    
     private void drawStaticEffect(Graphics2D g2d) {
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
         for (int i = 0; i < 1000; i++) {
@@ -230,6 +214,4 @@ public class InitGameUI extends JPanel {
         }
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
     }
-
-
 }
