@@ -4,7 +4,7 @@ import java.io.File;
 import javax.sound.sampled.*;
 import javax.swing.*;
 
-// Main Class for Homepage (Main Menu)
+
 public class Homepage extends JPanel {
     private JButton startButton, settingButton, exitButton;
     private Image backgroundImage;
@@ -64,7 +64,7 @@ public class Homepage extends JPanel {
     private void startGame() {
         frame.getContentPane().removeAll();
 
-        // Create and add the InitGameUI to the frame
+    
         InitGameUI initGameUI = new InitGameUI(frame);
         frame.add(initGameUI);
 
