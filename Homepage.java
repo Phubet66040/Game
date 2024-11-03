@@ -1,8 +1,4 @@
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
@@ -14,23 +10,44 @@ public class Homepage extends JPanel {
     private Image backgroundImage;
 
     Homepage() {
-    
-        ImageIcon startIcon = new ImageIcon("Start button.png");
+        ImageIcon startIcon = new ImageIcon("Start button1.png");
         ImageIcon bghomeIcon = new ImageIcon("bgghome.gif");
         backgroundImage = bghomeIcon.getImage();
-        
 
         startbutton = new JButton(startIcon);
         startbutton.setBorderPainted(false);
-        startbutton.setContentAreaFilled(false); 
+        startbutton.setContentAreaFilled(false);
+        startbutton.setFocusPainted(false);
+        startbutton.setMargin(null);
 
-       
+
+
         startbutton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showNextScreen();
             }
         });
+
+        settingbutton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSetting();
+            }
+        });
+
+        exitbutton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Window window = SwingUtilities.getWindowAncestor(Homepage.this);
+                if (window != null) {
+                    window.dispose();
+                }
+            }
+        });
+
+
+
 
         setLayout(new GridBagLayout());
         GridBagConstraints gid = new GridBagConstraints();
@@ -40,22 +57,28 @@ public class Homepage extends JPanel {
         gid.anchor = GridBagConstraints.CENTER;
         gid.fill = GridBagConstraints.HORIZONTAL;
 
-      
         add(startbutton, gid);
         add(settingbutton, gid);
         add(exitbutton, gid);
-        
     }
+
+
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
         g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
     }
 
     private void showNextScreen() {
-        JOptionPane.showMessageDialog(this, "Moving  screen...");
+        JOptionPane.showMessageDialog(this, "Moving to the next screen...");
     }
+    private void showSetting() {
+        JOptionPane.showMessageDialog(this, "Setting Options");
+    }
+
+
+
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("The Last Refuge");
