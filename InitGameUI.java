@@ -1,17 +1,26 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
+
 
 public class InitGameUI extends JPanel {
     private final JLabel gameMessage;
     private final Image background;
+    private final Image jumpscareImage;
     private volatile boolean isDoorLocked = false;
     private volatile boolean isWatchingCamera = false;
-    private volatile boolean isMonitorActive = false; 
+    private volatile boolean isMonitorActive = false;
     private volatile int power = 100;
     private volatile int hour = 0;
     private Timer powerTimer;
@@ -20,8 +29,9 @@ public class InitGameUI extends JPanel {
     private volatile boolean isMonsterNear = false;
     private final Rectangle doorArea;
     private final Rectangle cameraArea;
-    private final Rectangle monitorArea; 
+    private final Rectangle monitorArea;
     private volatile boolean showStatic = false;
+    private volatile boolean showJumpscare = false;
     private final Random random = new Random();
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private volatile int currentMonsterCam = -1;
@@ -31,9 +41,12 @@ public class InitGameUI extends JPanel {
         ImageIcon bg1Icon = new ImageIcon("bgcctv.jpg");
         background = bg1Icon.getImage();
 
+        ImageIcon jumpscareIcon = new ImageIcon("jumps.gif");
+        jumpscareImage = jumpscareIcon.getImage();
+
         doorArea = new Rectangle(50, 175, 195, 450);
         cameraArea = new Rectangle(700, 100, 200, 200);
-        monitorArea = new Rectangle(800, 190, 320, 250); 
+        monitorArea = new Rectangle(800, 190, 320, 250);
 
         gameMessage = new JLabel("Survive the night!", SwingConstants.CENTER);
         gameMessage.setFont(new Font("VT323", Font.BOLD, 36));
@@ -83,56 +96,43 @@ public class InitGameUI extends JPanel {
         });
     }
 
-
     private void toggleMonitor() {
         SwingUtilities.invokeLater(() -> {
             isMonitorActive = !isMonitorActive;
             playSound("monitor_" + (isMonitorActive ? "on" : "off") + ".wav");
-            power -= 3; 
+            power -= 3;
             repaint();
         });
     }
 
     private void startGameTimers() {
         powerTimer = new Timer(1000, e -> {
-            try {
-                SwingUtilities.invokeLater(() -> {
-                    int drain = 1;
-                    if (isDoorLocked) drain += 2;
-                    if (isWatchingCamera) drain += 1;
-                    if (isMonitorActive) drain += 1; 
-                    power = Math.max(0, power - drain);
+            SwingUtilities.invokeLater(() -> {
+                int drain = 1;
+                if (isDoorLocked) drain += 2;
+                if (isWatchingCamera) drain += 1;
+                if (isMonitorActive) drain += 1;
+                power = Math.max(0, power - drain);
 
-                    if (power <= 0) {
-                        gameOver("Power ran out!");
-                    }
-                    repaint();
-                });
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+                if (power <= 0) {
+                    gameOver("Power ran out!");
+                }
+                repaint();
+            });
         });
 
         gameTimer = new Timer(20000, e -> {
-            try {
-                SwingUtilities.invokeLater(() -> {
-                    hour++;
-                    if (hour >= 6) {
-                        victory();
-                    }
-                    repaint();
-                });
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            SwingUtilities.invokeLater(() -> {
+                hour++;
+                if (hour >= 6) {
+                    victory();
+                }
+                repaint();
+            });
         });
 
         monsterTimer = new Timer(5000, e -> {
-            try {
-                SwingUtilities.invokeLater(this::updateMonsterPositions);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            SwingUtilities.invokeLater(this::updateMonsterPositions);
         });
 
         powerTimer.start();
@@ -218,9 +218,22 @@ public class InitGameUI extends JPanel {
 
     private void gameOver(String reason) {
         stopTimers();
-        gameMessage.setText("Game Over: " + reason);
-        JOptionPane.showMessageDialog(this, "Game Over: " + reason);
-        System.exit(0);
+        showJumpscare = true;
+        playSound("Jumpsc.wav");
+
+        Timer jumpscareTimer = new Timer(3000, e -> {
+            showJumpscare = false;
+            repaint();
+            ((Timer) e.getSource()).stop();
+
+            gameMessage.setText("Game Over: " + reason);
+            JOptionPane.showMessageDialog(this, "Game Over: " + reason);
+            System.exit(0);
+        });
+        jumpscareTimer.setRepeats(false);
+        jumpscareTimer.start();
+
+        repaint();
     }
 
     private void victory() {
@@ -237,8 +250,16 @@ public class InitGameUI extends JPanel {
     }
 
     private void playSound(String soundFile) {
-        System.out.println("Playing sound: " + soundFile);
+        try {
+            File soundPath = new File(soundFile);
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundPath);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+             e.printStackTrace();
     }
+}
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -247,6 +268,10 @@ public class InitGameUI extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         drawGame(g2d);
+
+        if (showJumpscare) {
+            g2d.drawImage(jumpscareImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     private void drawGame(Graphics2D g2d) {
@@ -278,57 +303,34 @@ public class InitGameUI extends JPanel {
             g2d.fillOval(30, 300, 50, 50);
         }
 
-        // Draw monitor area
         g2d.setColor(isMonitorActive ? new Color(0, 0, 255, 100) : new Color(255, 255, 0, 100));
         g2d.fill(monitorArea);
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
-        g2d.drawString(isMonitorActive ? "MONITOR ON" : "MONITOR OFF", 640, 90);
+        g2d.drawString("Monitor: " + (isMonitorActive ? "ON" : "OFF"), 800, 150);
     }
 
     private void drawCameraView(Graphics2D g2d) {
-        g2d.setColor(new Color(0, 0, 0, 180));
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-
         for (int i = 0; i < 4; i++) {
-            int x = 100 + i * 200;
-            int y = 100;
-
-            g2d.setColor(currentMonsterCam == i ? Color.YELLOW : Color.GREEN);
-            g2d.drawRect(x, y, 180, 120);
-
-            g2d.setFont(new Font("VT323", Font.PLAIN, 16));
-            g2d.drawString("CAM " + (i + 1), x + 80, y + 60);
-
-            if (monsterLocations.get(i).get()) {
-                g2d.setColor(Color.RED);
-                g2d.fillOval(x + 75, y + 40, 30, 30);
-                g2d.setColor(Color.WHITE);
-                g2d.drawString("! DETECTED !", x + 60, y + 90);
-            }
+            Rectangle camArea = new Rectangle(100 + i * 200, 100, 180, 120);
+            g2d.setColor(monsterLocations.get(i).get() ? Color.RED : Color.GREEN);
+            g2d.fill(camArea);
+            g2d.setColor(Color.WHITE);
+            g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
         }
     }
 
     private void drawHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("VT323", Font.BOLD, 24));
-        g2d.drawString("Power: " + power + "%", 20, 30);
-
-        g2d.setColor(power < 20 ? Color.RED : Color.GREEN);
-        g2d.fillRect(20, 40, power * 2, 20);
-
-        g2d.setColor(Color.WHITE);
-        g2d.drawString(hour + " AM", getWidth() - 100, 30);
+        g2d.setFont(new Font("VT323", Font.BOLD, 20));
+        g2d.drawString("Power: " + power + "%", 10, 30);
+        g2d.drawString("Hour: " + hour + ":00", 10, 60);
     }
 
     private void drawStaticEffect(Graphics2D g2d) {
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
-        for (int i = 0; i < 1000; i++) {
-            int x = random.nextInt(getWidth());
-            int y = random.nextInt(getHeight());
-            g2d.setColor(random.nextBoolean() ? Color.WHITE : Color.GRAY);
-            g2d.fillRect(x, y, 2, 2);
-        }
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+        g2d.setColor(new Color(255, 255, 255, 50));
+        g2d.fillRect(0, 0, getWidth(), getHeight());
     }
+
+
 }
