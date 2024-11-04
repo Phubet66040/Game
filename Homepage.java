@@ -14,12 +14,12 @@ public class Homepage extends JPanel {
     public Homepage(JFrame frame) {
         this.frame = frame;
         initUI();
-        playMusic("FREEG.wav");
+        playMusic("assets\\sound\\FREEG.wav");
     }
 
     private void initUI() {
         try {
-            ImageIcon bgIcon = new ImageIcon("bgghome.gif");
+            ImageIcon bgIcon = new ImageIcon("assets\\git\\bgghome.gif");
             backgroundImage = bgIcon.getImage();
         } catch (Exception e) {
             System.out.println("Background image loading failed");

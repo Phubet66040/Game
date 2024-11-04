@@ -13,11 +13,12 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
-
 public class InitGameUI extends JPanel {
     private final JLabel gameMessage;
     private final Image background;
     private final Image jumpscareImage;
+    private final Image cctvImage;
+    private final Image monsterImg;
     private volatile boolean isDoorLocked = false;
     private volatile boolean isWatchingCamera = false;
     private volatile boolean isMonitorActive = false;
@@ -38,11 +39,18 @@ public class InitGameUI extends JPanel {
 
     public InitGameUI(JFrame frame) {
         setLayout(null);
-        ImageIcon bg1Icon = new ImageIcon("bgcctv.jpg");
+        ImageIcon bg1Icon = new ImageIcon("assets/background/bgcctv.jpg");
         background = bg1Icon.getImage();
 
-        ImageIcon jumpscareIcon = new ImageIcon("jumps.gif");
+        ImageIcon jumpscareIcon = new ImageIcon("assets\\git\\jumps.gif");
         jumpscareImage = jumpscareIcon.getImage();
+        
+        ImageIcon cctvIcon = new ImageIcon("assets\\git\\download.gif");
+        cctvImage = cctvIcon.getImage();
+
+        ImageIcon monIcon = new ImageIcon("assets\\git\\evil-scary.gif");
+        monsterImg = monIcon.getImage();
+
 
         doorArea = new Rectangle(50, 175, 195, 450);
         cameraArea = new Rectangle(700, 100, 200, 200);
@@ -99,7 +107,7 @@ public class InitGameUI extends JPanel {
     private void toggleMonitor() {
         SwingUtilities.invokeLater(() -> {
             isMonitorActive = !isMonitorActive;
-            playSound("TV_" + (isMonitorActive ? "On" : "On") + ".wav");
+            playSound("assets/sound/TV_" + (isMonitorActive ? "On" : "On") + ".wav");
             power -= 3;
             repaint();
         });
@@ -162,7 +170,7 @@ public class InitGameUI extends JPanel {
     private void toggleDoor() {
         SwingUtilities.invokeLater(() -> {
             isDoorLocked = !isDoorLocked;
-            playSound("door_" + (isDoorLocked ? "open" : "close") + ".wav");
+            playSound("assets/sound/door_" + (isDoorLocked ? "open" : "close") + ".wav");
             power -= 5;
             repaint();
         });
@@ -219,7 +227,7 @@ public class InitGameUI extends JPanel {
     private void gameOver(String reason) {
         stopTimers();
         showJumpscare = true;
-        playSound("Jumpsc.wav");
+        playSound("assets\\sound\\Jumpsc.wav");
 
         Timer jumpscareTimer = new Timer(3000, e -> {
             showJumpscare = false;
@@ -258,8 +266,8 @@ public class InitGameUI extends JPanel {
             clip.start();
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
              e.printStackTrace();
+        }
     }
-}
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -313,12 +321,26 @@ public class InitGameUI extends JPanel {
     private void drawCameraView(Graphics2D g2d) {
         for (int i = 0; i < 4; i++) {
             Rectangle camArea = new Rectangle(100 + i * 200, 100, 180, 120);
-            g2d.setColor(monsterLocations.get(i).get() ? Color.RED : Color.GREEN);
-            g2d.fill(camArea);
+    
+            // Set the background color for each camera view area
+            if (monsterLocations.get(i).get()) {
+                g2d.setColor(Color.RED);
+                g2d.fill(camArea);
+                // Draw the monster image if the monster is in this camera
+                g2d.drawImage(monsterImg, 100 + i * 200, 100, 180, 120, this);
+            } else {
+                g2d.setColor(Color.DARK_GRAY);
+                g2d.fill(camArea);
+                // Draw the default CCTV image if there's no monster
+                g2d.drawImage(cctvImage, 100 + i * 200, 100, 180, 120, this);
+            }
+    
+            // Draw the camera label
             g2d.setColor(Color.WHITE);
             g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
         }
     }
+    
 
     private void drawHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
@@ -331,6 +353,4 @@ public class InitGameUI extends JPanel {
         g2d.setColor(new Color(255, 255, 255, 50));
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
-
-
 }
