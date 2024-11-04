@@ -28,6 +28,7 @@ public class InitGameUI extends JPanel {
     private volatile boolean isWatchingCamera = false;
     private volatile boolean isMonitorActive = false;
     private volatile int power = 100;
+    private volatile int resources = 5;
     private volatile int hour = 0;
     private Timer powerTimer;
     private Timer gameTimer;
@@ -377,6 +378,7 @@ public class InitGameUI extends JPanel {
         g2d.setFont(new Font("VT323", Font.BOLD, 20));
         g2d.drawString("Power: " + power + "%", 10, 30);
         g2d.drawString("Hour: " + (12 - hour), 10, 60);
+        g2d.drawString("Resources: " + resources, 10, 80);
         int barWidth = 100;
         int barHeight = 20;
         int barX = 137;
@@ -407,10 +409,10 @@ public class InitGameUI extends JPanel {
     //incres
     private void initializeUIComponents() {
         
-        powerIncreaseButton = new JButton("Power Supplies");
+        powerIncreaseButton = new JButton("PowerSupplies");
         powerIncreaseButton.setFont(new Font("VT323", Font.PLAIN, 20));
-        powerIncreaseButton.setBounds(20, 90, 200, 50);
-        powerIncreaseButton.setBackground(new Color(1, 1, 1, 50)); 
+        powerIncreaseButton.setBounds(50, 90, 200, 50);
+        powerIncreaseButton.setBackground(Color.BLACK); 
         powerIncreaseButton.setForeground(Color.WHITE);
         powerIncreaseButton.setFocusPainted(false); 
         powerIncreaseButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
@@ -425,9 +427,9 @@ public class InitGameUI extends JPanel {
     
 
     private void openPowerIncreasePanel() { 
-        stopTimers(); 
+        
         frame.getContentPane().removeAll();
-        PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power, this); 
+        PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power,resources, this); 
         powerPanel.setOnReturnToGame(() -> {
             startGameTimers();
         });
@@ -438,8 +440,9 @@ public class InitGameUI extends JPanel {
     
     
 
-    public void setPower(int updatedPower) {
-        this.power = updatedPower; 
+    public void setPower(int updatedPower, int resources) {
+        this.power = updatedPower;
+        this.resources = resources;  
         repaint(); 
     }
 

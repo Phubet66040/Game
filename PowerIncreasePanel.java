@@ -4,14 +4,19 @@ import javax.swing.*;
 public class PowerIncreasePanel extends JPanel {
     private JFrame frame;
     private int power;
+    private int resources; 
     private JLabel powerLabel;
-    private InitGameUI gameUI; 
+    private JLabel resourcesLabel;
+    private InitGameUI gameUI;
     private Runnable onReturnToGame;
+    private boolean isPowerIncreasing;
 
-    public PowerIncreasePanel(JFrame frame, int currentPower, InitGameUI gameUI) { 
+    public PowerIncreasePanel(JFrame frame, int currentPower, int currentResources, InitGameUI gameUI) {
         this.frame = frame;
         this.power = currentPower;
-        this.gameUI = gameUI; 
+        this.resources = currentResources;
+        this.gameUI = gameUI;
+        this.isPowerIncreasing = false;
         initUI();
     }
 
@@ -22,14 +27,26 @@ public class PowerIncreasePanel extends JPanel {
         titleLabel.setFont(new Font("VT323", Font.BOLD, 30));
         add(titleLabel, BorderLayout.NORTH);
 
+      
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+
         powerLabel = new JLabel("Current Power: " + power + "%", SwingConstants.CENTER);
         powerLabel.setFont(new Font("VT323", Font.PLAIN, 24));
-        add(powerLabel, BorderLayout.CENTER);
+        powerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        infoPanel.add(powerLabel);
+
+        resourcesLabel = new JLabel("Resources: " + resources, SwingConstants.CENTER);
+        resourcesLabel.setFont(new Font("VT323", Font.PLAIN, 24));
+        resourcesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        infoPanel.add(resourcesLabel);
+
+        add(infoPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
 
-        JButton increasePowerButton = new JButton("Increase Power by 10%");
+        JButton increasePowerButton = new JButton("Increase Power by 5% (Cost: 1 Resource)");
         increasePowerButton.setFont(new Font("VT323", Font.PLAIN, 20));
         increasePowerButton.addActionListener(e -> increasePower());
         buttonPanel.add(increasePowerButton);
@@ -43,15 +60,24 @@ public class PowerIncreasePanel extends JPanel {
     }
 
     private void increasePower() {
-        if (power < 100) {
-            power = Math.min(100, power + 10);
+        if (power < 100 && resources > 0 && !isPowerIncreasing) {
+            isPowerIncreasing = true;
+            power += 5; 
+            power = Math.min(100, power); 
+            resources -= 1; 
             powerLabel.setText("Current Power: " + power + "%");
+            resourcesLabel.setText("Resources: " + resources);
+
+           
+            new Timer(1000, e -> isPowerIncreasing = false).start();
+        } else if (resources <= 0) {
+            JOptionPane.showMessageDialog(frame, "Not enough resources to increase power!");
         }
     }
 
     private void goBack() {
         frame.getContentPane().removeAll();
-        gameUI.setPower(power);  
+        gameUI.setPower(power, resources); 
         frame.add(gameUI);
         frame.revalidate();
         frame.repaint();
