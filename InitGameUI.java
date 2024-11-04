@@ -30,6 +30,7 @@ public class InitGameUI extends JPanel {
     private volatile int power = 100;
     private volatile int resources = 5;
     private volatile int hour = 0;
+    private volatile int up = 1;
     private Timer powerTimer;
     private Timer gameTimer;
     private Timer monsterTimer;
@@ -132,7 +133,7 @@ public class InitGameUI extends JPanel {
 
     private void startGameTimers() {
         powerTimer = new Timer(5000, e -> {
-            resources++;
+            resources += up;
             power -=3;
             SwingUtilities.invokeLater(() -> {
                 int drain = 0;
@@ -431,7 +432,7 @@ public class InitGameUI extends JPanel {
     private void openPowerIncreasePanel() { 
         
         frame.getContentPane().removeAll();
-        PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power,resources, this); 
+        PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power,resources,up,this); 
         powerPanel.setOnReturnToGame(() -> {
             startGameTimers();
         });
@@ -442,9 +443,10 @@ public class InitGameUI extends JPanel {
     
     
 
-    public void setPower(int updatedPower, int resources) {
+    public void setPower(int updatedPower, int resources,int a) {
         this.power = updatedPower;
         this.resources = resources;  
+        this.up = a;
         repaint(); 
     }
 

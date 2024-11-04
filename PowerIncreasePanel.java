@@ -4,6 +4,7 @@ import javax.swing.*;
 public class PowerIncreasePanel extends JPanel {
     private JFrame frame;
     private int power;
+    private int agi;
     private int resources; 
     private JLabel powerLabel;
     private JLabel resourcesLabel;
@@ -11,11 +12,12 @@ public class PowerIncreasePanel extends JPanel {
     private Runnable onReturnToGame;
     private boolean isPowerIncreasing;
 
-    public PowerIncreasePanel(JFrame frame, int currentPower, int currentResources, InitGameUI gameUI) {
+    public PowerIncreasePanel(JFrame frame, int currentPower, int currentResources,int agi, InitGameUI gameUI) {
         this.frame = frame;
         this.power = currentPower;
         this.resources = currentResources;
         this.gameUI = gameUI;
+        this.agi = agi;
         this.isPowerIncreasing = false;
         initUI();
     }
@@ -51,12 +53,23 @@ public class PowerIncreasePanel extends JPanel {
         increasePowerButton.addActionListener(e -> increasePower());
         buttonPanel.add(increasePowerButton);
 
+        JButton increaseResouresButton = new JButton("Increase Resource by 1% (Cost: 3 Power)");
+        increaseResouresButton.setFont(new Font("VT323", Font.PLAIN, 20));
+        increaseResouresButton.addActionListener(e -> increasere());
+        buttonPanel.add(increaseResouresButton);
+
         JButton backButton = new JButton("Back");
         backButton.setFont(new Font("VT323", Font.PLAIN, 20));
         backButton.addActionListener(e -> goBack());
         buttonPanel.add(backButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
+    }
+    private void increasere(){
+        agi++;
+        power -=5;
+        powerLabel.setText("Current Power: " + power + "%");
+        resourcesLabel.setText("Resources: " + resources);
     }
 
     private void increasePower() {
@@ -77,7 +90,7 @@ public class PowerIncreasePanel extends JPanel {
 
     private void goBack() {
         frame.getContentPane().removeAll();
-        gameUI.setPower(power, resources); 
+        gameUI.setPower(power, resources,agi); 
         frame.add(gameUI);
         frame.revalidate();
         frame.repaint();
