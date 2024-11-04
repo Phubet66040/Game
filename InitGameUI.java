@@ -131,7 +131,9 @@ public class InitGameUI extends JPanel {
     }
 
     private void startGameTimers() {
-        powerTimer = new Timer(3000, e -> {
+        powerTimer = new Timer(5000, e -> {
+            resources++;
+            power -=3;
             SwingUtilities.invokeLater(() -> {
                 int drain = 0;
                 if (isDoorLocked) {

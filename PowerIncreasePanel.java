@@ -62,9 +62,9 @@ public class PowerIncreasePanel extends JPanel {
     private void increasePower() {
         if (power < 100 && resources > 0 && !isPowerIncreasing) {
             isPowerIncreasing = true;
-            power += 5; 
+            power += 10; 
             power = Math.min(100, power); 
-            resources -= 1; 
+            resources -= 5; 
             powerLabel.setText("Current Power: " + power + "%");
             resourcesLabel.setText("Resources: " + resources);
 
