@@ -380,7 +380,7 @@ public class InitGameUI extends JPanel {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 20));
         g2d.drawString("Power: " + power + "%", 10, 30);
-        g2d.drawString("Hour: " + (12 - hour), 10, 60);
+        g2d.drawString("Hour: " + (6 - hour), 10, 60);
         g2d.drawString("Resources: " + resources, 10, 80);
         int barWidth = 100;
         int barHeight = 20;
