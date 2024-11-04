@@ -99,7 +99,7 @@ public class InitGameUI extends JPanel {
     private void toggleMonitor() {
         SwingUtilities.invokeLater(() -> {
             isMonitorActive = !isMonitorActive;
-            playSound("monitor_" + (isMonitorActive ? "on" : "off") + ".wav");
+            playSound("TV_" + (isMonitorActive ? "On" : "On") + ".wav");
             power -= 3;
             repaint();
         });

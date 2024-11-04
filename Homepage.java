@@ -100,11 +100,13 @@ public class Homepage extends JPanel {
     }
 
     private void startGame() {
+        stopMusic(); 
         frame.getContentPane().removeAll();
         frame.add(new InitGameUI(frame));
         frame.revalidate();
         frame.repaint();
     }
+    
 
     private void showSettings() {
         SettingsPanel settingsPanel = new SettingsPanel(this, frame);
