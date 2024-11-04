@@ -2,7 +2,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,6 +38,8 @@ public class InitGameUI extends JPanel {
     private final Random random = new Random();
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private volatile int currentMonsterCam = -1;
+    private final List<Image> randomImages = new ArrayList<>();
+    
 
     public InitGameUI(JFrame frame) {
         setLayout(null);
@@ -50,6 +54,11 @@ public class InitGameUI extends JPanel {
 
         ImageIcon monIcon = new ImageIcon("assets\\git\\evil-scary.gif");
         monsterImg = monIcon.getImage();
+
+        randomImages.add(new ImageIcon("assets\\git\\evil-scary.gif").getImage());
+        randomImages.add(new ImageIcon("assets\\git\\Private Website.gif").getImage());
+        randomImages.add(new ImageIcon("assets\\git\\[Creepy GIF] When a Shotgun Isn't Enough.gif").getImage());
+        randomImages.add(new ImageIcon("assets\\git\\d794cc8f-349c-452d-b596-2bead5189d94.gif").getImage());
 
 
         doorArea = new Rectangle(50, 175, 195, 450);
@@ -318,28 +327,37 @@ public class InitGameUI extends JPanel {
         g2d.drawString("Monitor: " + (isMonitorActive ? "ON" : "OFF"), 800, 150);
     }
 
-    private void drawCameraView(Graphics2D g2d) {
-        for (int i = 0; i < 4; i++) {
-            Rectangle camArea = new Rectangle(100 + i * 200, 100, 180, 120);
-    
-            // Set the background color for each camera view area
-            if (monsterLocations.get(i).get()) {
-                g2d.setColor(Color.RED);
-                g2d.fill(camArea);
-                // Draw the monster image if the monster is in this camera
-                g2d.drawImage(monsterImg, 100 + i * 200, 100, 180, 120, this);
-            } else {
-                g2d.setColor(Color.DARK_GRAY);
-                g2d.fill(camArea);
-                // Draw the default CCTV image if there's no monster
-                g2d.drawImage(cctvImage, 100 + i * 200, 100, 180, 120, this);
-            }
-    
-            // Draw the camera label
-            g2d.setColor(Color.WHITE);
-            g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
+    private final Map<Integer, Image> cameraGhostImages = new HashMap<>(); 
+
+private void drawCameraView(Graphics2D g2d) {
+    for (int i = 0; i < 4; i++) {
+        Rectangle camArea = new Rectangle(100 + i * 200, 100, 180, 120);
+
+       
+        g2d.setColor(Color.DARK_GRAY);
+        g2d.fill(camArea);
+
+     
+        if (monsterLocations.get(i).get()) {
+           
+            cameraGhostImages.putIfAbsent(i, randomImages.get(random.nextInt(randomImages.size())));
+          
+            g2d.drawImage(cameraGhostImages.get(i), 100 + i * 200, 100, 180, 120, this);
+        } else {
+          
+            cameraGhostImages.remove(i);
+           
+            g2d.drawImage(cctvImage, 100 + i * 200, 100, 180, 120, this);
         }
+
+       
+        g2d.setColor(Color.WHITE);
+        g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
     }
+}
+
+    
+
     
 
     private void drawHUD(Graphics2D g2d) {
