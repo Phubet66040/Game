@@ -1,3 +1,4 @@
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -16,6 +17,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
 public class InitGameUI extends JPanel {
+
     private final JLabel gameMessage;
     private final Image background;
     private final Image jumpscareImage;
@@ -39,7 +41,6 @@ public class InitGameUI extends JPanel {
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private volatile int currentMonsterCam = -1;
     private final List<Image> randomImages = new ArrayList<>();
-    
 
     public InitGameUI(JFrame frame) {
         setLayout(null);
@@ -48,7 +49,7 @@ public class InitGameUI extends JPanel {
 
         ImageIcon jumpscareIcon = new ImageIcon("assets\\git\\jumps.gif");
         jumpscareImage = jumpscareIcon.getImage();
-        
+
         ImageIcon cctvIcon = new ImageIcon("assets\\git\\download.gif");
         cctvImage = cctvIcon.getImage();
 
@@ -59,7 +60,6 @@ public class InitGameUI extends JPanel {
         randomImages.add(new ImageIcon("assets\\git\\Private Website.gif").getImage());
         randomImages.add(new ImageIcon("assets\\git\\[Creepy GIF] When a Shotgun Isn't Enough.gif").getImage());
         randomImages.add(new ImageIcon("assets\\git\\d794cc8f-349c-452d-b596-2bead5189d94.gif").getImage());
-
 
         doorArea = new Rectangle(50, 175, 195, 450);
         cameraArea = new Rectangle(700, 100, 200, 200);
@@ -90,7 +90,9 @@ public class InitGameUI extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (power <= 0) return;
+                if (power <= 0) {
+                    return;
+                }
 
                 SwingUtilities.invokeLater(() -> {
                     if (doorArea.contains(e.getPoint())) {
@@ -126,9 +128,15 @@ public class InitGameUI extends JPanel {
         powerTimer = new Timer(1000, e -> {
             SwingUtilities.invokeLater(() -> {
                 int drain = 1;
-                if (isDoorLocked) drain += 2;
-                if (isWatchingCamera) drain += 1;
-                if (isMonitorActive) drain += 1;
+                if (isDoorLocked) {
+                    drain += 2;
+                }
+                if (isWatchingCamera) {
+                    drain += 1;
+                }
+                if (isMonitorActive) {
+                    drain += 1;
+                }
                 power = Math.max(0, power - drain);
 
                 if (power <= 0) {
@@ -261,9 +269,15 @@ public class InitGameUI extends JPanel {
     }
 
     private void stopTimers() {
-        if (powerTimer != null) powerTimer.stop();
-        if (gameTimer != null) gameTimer.stop();
-        if (monsterTimer != null) monsterTimer.stop();
+        if (powerTimer != null) {
+            powerTimer.stop();
+        }
+        if (gameTimer != null) {
+            gameTimer.stop();
+        }
+        if (monsterTimer != null) {
+            monsterTimer.stop();
+        }
     }
 
     private void playSound(String soundFile) {
@@ -274,7 +288,7 @@ public class InitGameUI extends JPanel {
             clip.open(audioInput);
             clip.start();
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-             e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -313,7 +327,7 @@ public class InitGameUI extends JPanel {
 
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
-        g2d.drawString(isDoorLocked ? "LOCKED" : "UNLOCKED", 80, 80);
+        g2d.drawString(isDoorLocked ? "LOCKED" : "UNLOCKED", 80, 190);
 
         if (isMonsterNear && !isDoorLocked) {
             g2d.setColor(Color.RED);
@@ -327,44 +341,55 @@ public class InitGameUI extends JPanel {
         g2d.drawString("Monitor: " + (isMonitorActive ? "ON" : "OFF"), 800, 150);
     }
 
-    private final Map<Integer, Image> cameraGhostImages = new HashMap<>(); 
+    private final Map<Integer, Image> cameraGhostImages = new HashMap<>();
 
-private void drawCameraView(Graphics2D g2d) {
-    for (int i = 0; i < 4; i++) {
-        Rectangle camArea = new Rectangle(100 + i * 200, 100, 180, 120);
+    private void drawCameraView(Graphics2D g2d) {
+        for (int i = 0; i < 4; i++) {
+            Rectangle camArea = new Rectangle(100 + i * 200, 100, 180, 120);
 
-       
-        g2d.setColor(Color.DARK_GRAY);
-        g2d.fill(camArea);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.fill(camArea);
 
-     
-        if (monsterLocations.get(i).get()) {
-           
-            cameraGhostImages.putIfAbsent(i, randomImages.get(random.nextInt(randomImages.size())));
-          
-            g2d.drawImage(cameraGhostImages.get(i), 100 + i * 200, 100, 180, 120, this);
-        } else {
-          
-            cameraGhostImages.remove(i);
-           
-            g2d.drawImage(cctvImage, 100 + i * 200, 100, 180, 120, this);
+            if (monsterLocations.get(i).get()) {
+
+                cameraGhostImages.putIfAbsent(i, randomImages.get(random.nextInt(randomImages.size())));
+
+                g2d.drawImage(cameraGhostImages.get(i), 100 + i * 200, 100, 180, 120, this);
+            } else {
+
+                cameraGhostImages.remove(i);
+
+                g2d.drawImage(cctvImage, 100 + i * 200, 100, 180, 120, this);
+            }
+
+            g2d.setColor(Color.WHITE);
+            g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
         }
-
-       
-        g2d.setColor(Color.WHITE);
-        g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
     }
-}
-
-    
-
-    
 
     private void drawHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 20));
         g2d.drawString("Power: " + power + "%", 10, 30);
-        g2d.drawString("Hour: " + hour + ":00", 10, 60);
+        g2d.drawString("Hour: " + (12 - hour), 10, 60);
+        int barWidth = 100;
+        int barHeight = 20;
+        int barX = 137;
+        int barY = 14;
+        g2d.setColor(Color.DARK_GRAY);
+        g2d.fillRect(barX, barY, barWidth, barHeight);
+
+        int filledWidth = (int) (barWidth * (power / 100.0));
+        if (power > 60) {
+            g2d.setColor(Color.GREEN);
+        } else if (power > 30) {
+            g2d.setColor(Color.YELLOW);
+        } else {
+            g2d.setColor(Color.RED);
+        }
+        g2d.fillRect(barX, barY, filledWidth, barHeight);
+        g2d.setColor(Color.WHITE);
+        g2d.drawRect(barX, barY, barWidth, barHeight);
     }
 
     private void drawStaticEffect(Graphics2D g2d) {
