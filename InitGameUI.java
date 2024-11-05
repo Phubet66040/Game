@@ -406,15 +406,19 @@ public class InitGameUI extends JPanel {
 
     //label assets
     private void drawHUD(Graphics2D g2d) {
+        double widthScale = (double) getWidth() / 1024.0; 
+        double heightScale = (double) getHeight() / 768.0; 
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("VT323", Font.BOLD, 20));
-        g2d.drawString("Power: " + power + "%", 10, 30);
-        g2d.drawString("Hour: " + (6 - hour), 10, 60);
-        g2d.drawString("Resources: " + resources, 10, 80);
-        int barWidth = 100;
-        int barHeight = 20;
-        int barX = 137;
-        int barY = 14;
+        g2d.setFont(new Font("VT323", Font.BOLD, (int) (20 * heightScale))); 
+        g2d.drawString("Power: " + power + "%", (int)(10 * widthScale), (int)(30 * heightScale));
+        g2d.drawString("Hour: " + (6 - hour), (int)(10 * widthScale), (int)(60 * heightScale));
+        g2d.drawString("Resources: " + resources, (int)(10 * widthScale), (int)(80 * heightScale));
+
+        int barWidth = (int) (100 * widthScale); 
+        int barHeight = (int) (20 * heightScale); 
+        int barX = (int) (137 * widthScale);
+        int barY = (int) (14 * heightScale); 
+
         g2d.setColor(Color.DARK_GRAY);
         g2d.fillRect(barX, barY, barWidth, barHeight);
         int filledWidth = (int) (barWidth * (power / 100.0));
