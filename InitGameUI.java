@@ -44,11 +44,13 @@ public class InitGameUI extends JPanel {
     private Timer gameTimer;
     private Timer monsterTimer;
     //area
+    private final Rectangle roomgenArea;
     private final Rectangle doorArea;
     private final Rectangle cameraArea;
     private final Rectangle monitorArea;
     private final Rectangle baseDoorArea;
     private final Rectangle baseCameraArea;
+    private final Rectangle baseroomgenArea;
     private final Rectangle baseMonitorArea;
     //eventtrck
     private final Random random = new Random();
@@ -65,7 +67,7 @@ public class InitGameUI extends JPanel {
 
         //img set
         ImageIcon bg1Icon = new ImageIcon("assets\\background\\Untitled (4).jpg");
-        background = adjustBrightness(bg1Icon.getImage(), 0.5f); 
+        background = adjustBrightness(bg1Icon.getImage(), 1f); 
         
         ImageIcon jumpscareIcon = new ImageIcon("assets\\git\\jumps.gif");
         jumpscareImage = jumpscareIcon.getImage();
@@ -84,9 +86,11 @@ public class InitGameUI extends JPanel {
         baseDoorArea = new Rectangle(50, 175, 145, 430);
         baseCameraArea = new Rectangle(640, 180, 250, 250);
         baseMonitorArea = new Rectangle(640, 180, 250, 250);
+        baseroomgenArea = new Rectangle(400, 200, 150, 200);
         doorArea = new Rectangle(50, 175, 145, 430);
         cameraArea = new Rectangle(640, 180, 250, 250);
         monitorArea = new Rectangle(640, 180, 250, 250);
+        roomgenArea = new Rectangle(400,200,150,200);
 
         //message
         gameMessage = new JLabel("Survive the night!", SwingConstants.CENTER);
@@ -488,16 +492,16 @@ public class InitGameUI extends JPanel {
     private void openPowerIncreasePanel() { 
         frame.getContentPane().removeAll();
     
-        // สร้าง PowerIncreasePanel ใหม่และส่งพารามิเตอร์ให้ถูกต้อง
+      
         PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power, resources, up, this);
     
-        // กำหนดให้เมื่อกดกลับจะเรียก startGameTimers()
+        
         powerPanel.setOnReturnToGame(() -> {
             frame.getContentPane().removeAll();
-            frame.add(this); // เพิ่มหน้าจอ InitGameUI กลับมา
+            frame.add(this);
             frame.revalidate();
             frame.repaint();
-            startGameTimers(); // เริ่มตัวจับเวลาใหม่
+            startGameTimers(); 
         });
     
         frame.add(powerPanel);
