@@ -62,7 +62,7 @@ public class InitGameUI extends JPanel {
         initializeUIComponents();
 
         //img set
-        ImageIcon bg1Icon = new ImageIcon("assets/background/bgcctv.jpg");
+        ImageIcon bg1Icon = new ImageIcon("assets\\background\\Untitled (4).jpg");
         background = bg1Icon.getImage();
         ImageIcon jumpscareIcon = new ImageIcon("assets\\git\\jumps.gif");
         jumpscareImage = jumpscareIcon.getImage();
