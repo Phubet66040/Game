@@ -13,6 +13,7 @@ public class PowerIncreasePanel extends JPanel {
     private Runnable onReturnToGame;
     private boolean isPowerIncreasing;
     private Image backgImage;
+    private Timer powerDecreaseTimer; // Timer สำหรับลดพลังงาน
 
     public PowerIncreasePanel(JFrame frame, int currentPower, int currentResources, int agi, InitGameUI gameUI) {
         this.frame = frame;
@@ -22,6 +23,7 @@ public class PowerIncreasePanel extends JPanel {
         this.agi = agi;
         this.isPowerIncreasing = false;
         initUI();
+        startPowerDecreaseTimer(); // เริ่มต้น Timer เพื่อลดพลังงาน
     }
 
     private void initUI() {
@@ -30,20 +32,23 @@ public class PowerIncreasePanel extends JPanel {
         backgImage = bIcon.getImage();
         setOpaque(false);
         
-        JLabel titleLabel = new JLabel("Increase Power", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("VT323", Font.BOLD, (int)(30 * ((double)getHeight() / 600.0)))); // ปรับขนาดฟอนต์
+        JLabel titleLabel = new JLabel("Power Supplies Room", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("VT323", Font.BOLD, 30));
+        titleLabel.setForeground(Color.WHITE); 
         add(titleLabel, BorderLayout.NORTH);
     
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false); 
-    
+        
         powerLabel = new JLabel("Current Power: " + power + "%", SwingConstants.CENTER);
-        powerLabel.setFont(new Font("VT323", Font.PLAIN, (int)(24 * ((double)getHeight() / 600.0)))); 
+        powerLabel.setFont(new Font("VT323", Font.PLAIN, 24));
+        powerLabel.setForeground(Color.WHITE); 
         infoPanel.add(powerLabel);
     
         resourcesLabel = new JLabel("Resources: " + resources, SwingConstants.CENTER);
-        resourcesLabel.setFont(new Font("VT323", Font.PLAIN, (int)(24 * ((double)getHeight() / 600.0)))); 
+        resourcesLabel.setFont(new Font("VT323", Font.PLAIN, 24));
+        resourcesLabel.setForeground(Color.WHITE); 
         infoPanel.add(resourcesLabel);
     
         add(infoPanel, BorderLayout.CENTER);
@@ -53,24 +58,24 @@ public class PowerIncreasePanel extends JPanel {
         buttonPanel.setOpaque(false); 
 
         JButton increasePowerButton = new JButton("Increase Power by 5% (Cost: 1 Resource)");
-        increasePowerButton.setFont(new Font("VT323", Font.PLAIN, (int)(20 * ((double)getHeight() / 600.0)))); 
+        increasePowerButton.setFont(new Font("VT323", Font.PLAIN, 20));
         increasePowerButton.addActionListener(e -> increasePower());
         buttonPanel.add(increasePowerButton);
     
         JButton increaseResourcesButton = new JButton("Increase Resource by 1% (Cost: 5 Power)");
-        increaseResourcesButton.setFont(new Font("VT323", Font.PLAIN, (int)(20 * ((double)getHeight() / 600.0)))); 
-        increaseResourcesButton.addActionListener(e -> increasere());
+        increaseResourcesButton.setFont(new Font("VT323", Font.PLAIN, 20));
+        increaseResourcesButton.addActionListener(e -> increaseResource());
         buttonPanel.add(increaseResourcesButton);
     
         JButton backButton = new JButton("Back");
-        backButton.setFont(new Font("VT323", Font.PLAIN, (int)(20 * ((double)getHeight() / 600.0)))); 
+        backButton.setFont(new Font("VT323", Font.PLAIN, 20));
         backButton.addActionListener(e -> goBack());
         buttonPanel.add(backButton);
     
         add(buttonPanel, BorderLayout.SOUTH);
     }
     
-    private void increasere() {
+    private void increaseResource() {
         if (power > 4) {
             agi++;
             count++;
@@ -78,6 +83,7 @@ public class PowerIncreasePanel extends JPanel {
             power = Math.min(100, power); 
             powerLabel.setText("Current Power: " + power + "%");
             resourcesLabel.setText("Resources: " + resources);
+            updatePowerLabelColor(); // อัปเดตสีของ powerLabel
         } else if (resources <= 0) {
             JOptionPane.showMessageDialog(frame, "Not enough power to increase Resource!");
         }
@@ -91,18 +97,42 @@ public class PowerIncreasePanel extends JPanel {
             resources -= 5; 
             powerLabel.setText("Current Power: " + power + "%");
             resourcesLabel.setText("Resources: " + resources);
+            updatePowerLabelColor(); // อัปเดตสีของ powerLabel
             new Timer(1000, e -> isPowerIncreasing = false).start();
         } else if (resources <= 0) {
             JOptionPane.showMessageDialog(frame, "Not enough resources to increase power!");
         }
     }
 
+    private void startPowerDecreaseTimer() {
+        powerDecreaseTimer = new Timer(1000, e -> {
+            if (power > 0) {
+                power--; 
+                powerLabel.setText("Current Power: " + power + "%");
+                updatePowerLabelColor(); // อัปเดตสีของ powerLabel
+            } else {
+                powerDecreaseTimer.stop(); 
+        
+            }
+        });
+        powerDecreaseTimer.start(); 
+    }
+
     private void goBack() {
+        powerDecreaseTimer.stop(); // หยุด Timer ก่อนกลับ
         frame.getContentPane().removeAll();
         gameUI.setPower(power, resources, agi); 
         frame.add(gameUI);
         frame.revalidate();
         frame.repaint();
+    }
+
+    private void updatePowerLabelColor() {
+        if (power <= 20) {
+            powerLabel.setForeground(Color.RED); // เปลี่ยนเป็นสีแดงเมื่อพลังงาน <= 20%
+        } else {
+            powerLabel.setForeground(Color.WHITE); // เปลี่ยนกลับเป็นสีขาวเมื่อพลังงานมากกว่า 20%
+        }
     }
 
     public void setOnReturnToGame(Runnable callback) {

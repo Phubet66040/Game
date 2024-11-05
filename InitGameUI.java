@@ -277,7 +277,7 @@ public class InitGameUI extends JPanel {
     }
 
     //eventgameover
-    private void gameOver(String reason) {
+    public void gameOver(String reason) {
         stopTimers();
         showJumpscare = true;
         playSound("assets\\sound\\Jumpsc.wav");
@@ -413,6 +413,7 @@ public class InitGameUI extends JPanel {
             g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
         }
     }
+    
 
     //label assets
     private void drawHUD(Graphics2D g2d) {
