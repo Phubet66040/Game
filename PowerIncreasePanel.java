@@ -108,7 +108,7 @@ public class PowerIncreasePanel extends JPanel {
     }
 
     private void increasePower() {
-        if (power < 100 && resources > 0 && !isPowerIncreasing) {
+        if (power < 100 && resources > ren-1 && !isPowerIncreasing) {
             isPowerIncreasing = true;
             power += 5; 
             power = Math.min(100, power);

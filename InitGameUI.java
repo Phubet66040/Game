@@ -26,6 +26,7 @@ public class InitGameUI extends JPanel {
     private final Image jumpscareImage;
     private final Image cctvImage;
     private final Image monsterImg;
+    private final Image arrowimg;
     //con
     private volatile boolean isDoorLocked = false;
     private volatile boolean isWatchingCamera = false;
@@ -44,6 +45,7 @@ public class InitGameUI extends JPanel {
     private Timer gameTimer;
     private Timer monsterTimer;
     //area
+    private final Rectangle arrowArea;
     private final Rectangle roomgenArea;
     private final Rectangle doorArea;
     private final Rectangle cameraArea;
@@ -53,6 +55,7 @@ public class InitGameUI extends JPanel {
     private final Rectangle baseroomgenArea;
     private final Rectangle baseMonitorArea;
     //eventtrck
+  
     private final Random random = new Random();
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private final List<Image> randomImages = new ArrayList<>();
@@ -63,7 +66,8 @@ public class InitGameUI extends JPanel {
     public InitGameUI(JFrame frame) {
         this.frame = frame;
         setLayout(null);
-        initializeUIComponents();
+     
+        initializeMouseListener();
 
         //img set
         ImageIcon bg1Icon = new ImageIcon("assets\\background\\Untitled (4).jpg");
@@ -75,6 +79,8 @@ public class InitGameUI extends JPanel {
         cctvImage = cctvIcon.getImage();
         ImageIcon monIcon = new ImageIcon("assets\\git\\evil-scary.gif");
         monsterImg = monIcon.getImage();
+        arrowimg = new ImageIcon("assets\\img\\arrow.png").getImage(); 
+        
 
         //img mon ran
         randomImages.add(new ImageIcon("assets\\git\\evil-scary.gif").getImage());
@@ -86,11 +92,12 @@ public class InitGameUI extends JPanel {
         baseDoorArea = new Rectangle(50, 175, 145, 430);
         baseCameraArea = new Rectangle(640, 180, 250, 250);
         baseMonitorArea = new Rectangle(640, 180, 250, 250);
-        baseroomgenArea = new Rectangle(400, 200, 150, 200);
+        baseroomgenArea = new Rectangle(800, 700, 200, 50);
         doorArea = new Rectangle(50, 175, 145, 430);
         cameraArea = new Rectangle(640, 180, 250, 250);
         monitorArea = new Rectangle(640, 180, 250, 250);
-        roomgenArea = new Rectangle(400,200,150,200);
+        roomgenArea = new Rectangle(800,700,200,50);
+        arrowArea = new Rectangle(800, 700, 200, 50);
 
         //message
         gameMessage = new JLabel("Survive the night!", SwingConstants.CENTER);
@@ -360,6 +367,12 @@ public class InitGameUI extends JPanel {
             (int) (baseMonitorArea.height * heightScale)
         );
 
+        roomgenArea.setBounds(
+            (int) (baseroomgenArea.x * widthScale),
+            (int) (baseroomgenArea.y * heightScale),
+            (int) (baseroomgenArea.width * widthScale),
+            (int) (baseroomgenArea.height * heightScale)
+        );
         drawGame(g2d);
 
         if (showJumpscare) {
@@ -370,13 +383,13 @@ public class InitGameUI extends JPanel {
     //drawstep
     private void drawGame(Graphics2D g2d) {
         g2d.drawImage(background, 0, 0, getWidth(), getHeight(), this);
-        
-      
+    
         g2d.setColor(new Color(0, 0, 0, 128)); 
         g2d.fillRect(0, 0, getWidth(), getHeight());
         
         if (!isWatchingCamera) {
             drawOfficeView(g2d);
+            drawrotate(g2d);
         } else {
             drawCameraView(g2d);
         }
@@ -397,8 +410,7 @@ public class InitGameUI extends JPanel {
         g2d.dispose();
         return bufferedImage;
     }
-    
-    
+
 
     //doorevent
     private void drawOfficeView(Graphics2D g2d) {
@@ -420,6 +432,8 @@ public class InitGameUI extends JPanel {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
         g2d.drawString("Monitor: " + (isMonitorActive ? "ON" : "OFF"), 800, 150);
+
+
     }
 
     //caremaevent
@@ -476,19 +490,28 @@ public class InitGameUI extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
-    //incres
-    private void initializeUIComponents() {
-        powerIncreaseButton = new JButton("PowerSupplies");
-        powerIncreaseButton.setFont(new Font("VT323", Font.PLAIN, 20));
-        powerIncreaseButton.setBounds(50, 90, 200, 50);
-        powerIncreaseButton.setBackground(Color.BLACK);
-        powerIncreaseButton.setForeground(Color.WHITE);
-        powerIncreaseButton.setFocusPainted(false);
-        powerIncreaseButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        powerIncreaseButton.setPreferredSize(new Dimension(200, 40));
-        powerIncreaseButton.addActionListener(e -> openPowerIncreasePanel());
-        add(powerIncreaseButton);
+    private void drawrotate(Graphics2D g2d) {
+        g2d.setColor(new Color(0, 255, 240, 100));
+        g2d.fill(arrowArea); 
+        g2d.drawImage(arrowimg, 800, 700, 200, 50, this); 
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("VT323", Font.BOLD, 24));
+        g2d.drawString("Generator Room", 1000, 700); 
+        
     }
+    private void initializeMouseListener() {
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (arrowArea.contains(e.getPoint())) {
+                    openPowerIncreasePanel(); 
+                }
+            }
+        });
+    }
+    
+    //incres
+
     private void openPowerIncreasePanel() { 
         frame.getContentPane().removeAll();
     
