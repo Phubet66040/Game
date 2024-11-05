@@ -16,8 +16,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
-
 public class InitGameUI extends JPanel {
+
     //img 
     private final JLabel gameMessage;
     private final Image background;
@@ -45,14 +45,16 @@ public class InitGameUI extends JPanel {
     private final Rectangle doorArea;
     private final Rectangle cameraArea;
     private final Rectangle monitorArea;
+    private final Rectangle baseDoorArea;
+    private final Rectangle baseCameraArea;
+    private final Rectangle baseMonitorArea;
     //eventtrck
     private final Random random = new Random();
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private final List<Image> randomImages = new ArrayList<>();
     private JFrame frame;
     private JButton powerIncreaseButton;
-    private final Map<Integer, Image> cameraGhostImages = new HashMap<>(); 
-
+    private final Map<Integer, Image> cameraGhostImages = new HashMap<>();
 
     public InitGameUI(JFrame frame) {
         this.frame = frame;
@@ -74,19 +76,22 @@ public class InitGameUI extends JPanel {
         randomImages.add(new ImageIcon("assets\\git\\Private Website.gif").getImage());
         randomImages.add(new ImageIcon("assets\\git\\[Creepy GIF] When a Shotgun Isn't Enough.gif").getImage());
         randomImages.add(new ImageIcon("assets\\git\\d794cc8f-349c-452d-b596-2bead5189d94.gif").getImage());
-        
+
         //area
-        doorArea = new Rectangle(50, 175, 195, 450);
-        cameraArea = new Rectangle(800, 190, 3200, 250);
-        monitorArea = new Rectangle(800, 190, 320, 250);
-        
+        baseDoorArea = new Rectangle(50, 175, 145, 430);
+        baseCameraArea = new Rectangle(640, 180, 250, 250);
+        baseMonitorArea = new Rectangle(640, 180, 250, 250);
+        doorArea = new Rectangle(50, 175, 145, 430);
+        cameraArea = new Rectangle(640, 180, 250, 250);
+        monitorArea = new Rectangle(640, 180, 250, 250);
+
         //message
-        gameMessage = new JLabel("Survive the night!",SwingConstants.CENTER);
+        gameMessage = new JLabel("Survive the night!", SwingConstants.CENTER);
         gameMessage.setFont(new Font("VT323", Font.BOLD, 36));
         gameMessage.setForeground(Color.WHITE);
         gameMessage.setBounds(400, 20, 400, 50);
         add(gameMessage);
-        
+
         //random mon
         monsterLocations = new HashMap<>();
         for (int i = 0; i < 4; i++) {
@@ -100,7 +105,6 @@ public class InitGameUI extends JPanel {
         startGameTimers();
         setupClickHandlers();
     }
-
 
     //onclickevent
     private void setupClickHandlers() {
@@ -136,16 +140,16 @@ public class InitGameUI extends JPanel {
         SwingUtilities.invokeLater(() -> {
             isMonitorActive = !isMonitorActive;
             playSound("assets/sound/TV_" + (isMonitorActive ? "On" : "On") + ".wav");
-            power -=1;
+            power -= 1;
             repaint();
         });
     }
-    
+
     //timeingame
     private void startGameTimers() {
         powerTimer = new Timer(5000, e -> {
             resources += up;
-            power -=3;
+            power -= 3;
             SwingUtilities.invokeLater(() -> {
                 int drain = 0;
                 if (isDoorLocked) {
@@ -181,6 +185,7 @@ public class InitGameUI extends JPanel {
         gameTimer.start();
         monsterTimer.start();
     }
+
     //stop
     private void stopTimers() {
         if (powerTimer != null) {
@@ -223,6 +228,7 @@ public class InitGameUI extends JPanel {
             repaint();
         });
     }
+
     //eventoncam
     private void toggleCamera() {
         SwingUtilities.invokeLater(() -> {
@@ -316,6 +322,27 @@ public class InitGameUI extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        double widthScale = getWidth() / 1024.0;
+        double heightScale = getHeight() / 768.0;
+        doorArea.setBounds(
+            (int) (baseDoorArea.x * widthScale),
+            (int) (baseDoorArea.y * heightScale),
+            (int) (baseDoorArea.width * widthScale),
+            (int) (baseDoorArea.height * heightScale)
+        );
+        cameraArea.setBounds(
+            (int) (baseCameraArea.x * widthScale),
+            (int) (baseCameraArea.y * heightScale),
+            (int) (baseCameraArea.width * widthScale),
+            (int) (baseCameraArea.height * heightScale)
+        );
+        monitorArea.setBounds(
+            (int) (baseMonitorArea.x * widthScale),
+            (int) (baseMonitorArea.y * heightScale),
+            (int) (baseMonitorArea.width * widthScale),
+            (int) (baseMonitorArea.height * heightScale)
+        );
+
         drawGame(g2d);
 
         if (showJumpscare) {
@@ -324,7 +351,6 @@ public class InitGameUI extends JPanel {
     }
 
     //drawstep
-    
     private void drawGame(Graphics2D g2d) {
         g2d.drawImage(background, 0, 0, getWidth(), getHeight(), this);
         if (!isWatchingCamera) {
@@ -339,7 +365,6 @@ public class InitGameUI extends JPanel {
     }
 
     //doorevent
-
     private void drawOfficeView(Graphics2D g2d) {
         g2d.setColor(isDoorLocked ? new Color(0, 255, 0, 100) : new Color(255, 0, 0, 100));
         g2d.fill(doorArea);
@@ -410,24 +435,23 @@ public class InitGameUI extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
-
-
     //incres
     private void initializeUIComponents() {
         powerIncreaseButton = new JButton("PowerSupplies");
         powerIncreaseButton.setFont(new Font("VT323", Font.PLAIN, 20));
         powerIncreaseButton.setBounds(50, 90, 200, 50);
-        powerIncreaseButton.setBackground(Color.BLACK); 
+        powerIncreaseButton.setBackground(Color.BLACK);
         powerIncreaseButton.setForeground(Color.WHITE);
-        powerIncreaseButton.setFocusPainted(false); 
-        powerIncreaseButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
+        powerIncreaseButton.setFocusPainted(false);
+        powerIncreaseButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         powerIncreaseButton.setPreferredSize(new Dimension(200, 40));
         powerIncreaseButton.addActionListener(e -> openPowerIncreasePanel());
         add(powerIncreaseButton);
     }
-    private void openPowerIncreasePanel() { 
+
+    private void openPowerIncreasePanel() {
         frame.getContentPane().removeAll();
-        PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power,resources,up,this); 
+        PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power, resources, up, this);
         powerPanel.setOnReturnToGame(() -> {
             startGameTimers();
         });
@@ -435,10 +459,11 @@ public class InitGameUI extends JPanel {
         frame.revalidate();
         frame.repaint();
     }
-    public void setPower(int updatedPower, int resources,int a) {
+
+    public void setPower(int updatedPower, int resources, int a) {
         this.power = updatedPower;
-        this.resources = resources;  
+        this.resources = resources;
         this.up = a;
-        repaint(); 
-    } 
+        repaint();
+    }
 }
