@@ -158,7 +158,7 @@ public class Homepage extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setUndecorated(true);
         frame.add(new Homepage(frame));
-        frame.setSize(800, 600); 
+        frame.setSize(1280, 800); 
         frame.setLocationRelativeTo(null); 
         frame.setVisible(true);
     }

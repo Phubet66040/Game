@@ -287,11 +287,17 @@ public class InitGameUI extends JPanel {
             ((Timer) e.getSource()).stop();
             gameMessage.setText("Game Over: " + reason);
             JOptionPane.showMessageDialog(this, "Game Over: " + reason);
-            System.exit(0);
+            
+            frame.getContentPane().removeAll();
+            frame.add(new Homepage(frame));
+            frame.revalidate();
+            frame.repaint();
         });
         jumpscareTimer.setRepeats(false);
         jumpscareTimer.start();
         repaint();
+        
+        
     }
 
     //eventvic
@@ -299,7 +305,11 @@ public class InitGameUI extends JPanel {
         stopTimers();
         gameMessage.setText("You survived the night!");
         JOptionPane.showMessageDialog(this, "You survived the night!");
-        System.exit(0);
+        //fff
+        frame.getContentPane().removeAll();
+        frame.add(new Homepage(frame));
+        frame.revalidate();
+        frame.repaint();
     }
 
     //sound

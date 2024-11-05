@@ -5,6 +5,7 @@ public class PowerIncreasePanel extends JPanel {
     private JFrame frame;
     private int power;
     private int agi;
+    private int count = 30;
     private int resources; 
     private JLabel powerLabel;
     private JLabel resourcesLabel;
@@ -77,7 +78,8 @@ public class PowerIncreasePanel extends JPanel {
     private void increasere(){
         if (power > 4 ) {
             agi++;
-            power -=5;
+            count++;
+            power -=count;
             power = Math.min(100, power); 
             powerLabel.setText("Current Power: " + power + "%");
             resourcesLabel.setText("Resources: " + resources);
