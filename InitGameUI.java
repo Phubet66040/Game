@@ -57,7 +57,7 @@ public class InitGameUI extends JPanel {
     private final Rectangle baseroomgenArea;
     private final Rectangle baseMonitorArea;
     //eventtrck
-  
+
     private final Random random = new Random();
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private final List<Image> randomImages = new ArrayList<>();
@@ -68,22 +68,21 @@ public class InitGameUI extends JPanel {
     public InitGameUI(JFrame frame) {
         this.frame = frame;
         setLayout(null);
-     
+
         initializeMouseListener();
 
         //img set
         ImageIcon bg1Icon = new ImageIcon("assets\\background\\Untitled (4).jpg");
-        background = adjustBrightness(bg1Icon.getImage(), 1f); 
-        
+        background = adjustBrightness(bg1Icon.getImage(), 1f);
+
         ImageIcon jumpscareIcon = new ImageIcon("assets\\git\\jumps.gif");
         jumpscareImage = jumpscareIcon.getImage();
         ImageIcon cctvIcon = new ImageIcon("assets\\git\\download.gif");
         cctvImage = cctvIcon.getImage();
         ImageIcon monIcon = new ImageIcon("assets\\git\\evil-scary.gif");
         monsterImg = monIcon.getImage();
-        arrowimgr = new ImageIcon("assets\\img\\arrow.png").getImage(); 
-        arrowimgl = new ImageIcon("assets\\img\\arrow copy.png").getImage(); 
-        
+        arrowimgr = new ImageIcon("assets\\img\\arrow.png").getImage();
+        arrowimgl = new ImageIcon("assets\\img\\arrow copy.png").getImage();
 
         //img mon ran
         randomImages.add(new ImageIcon("assets\\git\\evil-scary.gif").getImage());
@@ -99,10 +98,9 @@ public class InitGameUI extends JPanel {
         doorArea = new Rectangle(50, 175, 145, 430);
         cameraArea = new Rectangle(640, 180, 250, 250);
         monitorArea = new Rectangle(640, 180, 250, 250);
-        roomgenArea = new Rectangle(1000,700,200,50);
+        roomgenArea = new Rectangle(1000, 700, 200, 50);
         arrowArearight = new Rectangle(1000, 700, 200, 50);
         arrowArealeft = new Rectangle(20, 700, 200, 50);
-
 
         //message
         gameMessage = new JLabel("Survive the night!", SwingConstants.CENTER);
@@ -148,6 +146,9 @@ public class InitGameUI extends JPanel {
                                 break;
                             }
                         }
+                    }
+                    if (arrowArealeft.contains(e.getPoint())) {
+
                     }
                 });
             }
@@ -306,7 +307,7 @@ public class InitGameUI extends JPanel {
             ((Timer) e.getSource()).stop();
             gameMessage.setText("Game Over: " + reason);
             JOptionPane.showMessageDialog(this, "Game Over: " + reason);
-            
+
             frame.getContentPane().removeAll();
             frame.add(new Homepage(frame));
             frame.revalidate();
@@ -315,8 +316,7 @@ public class InitGameUI extends JPanel {
         jumpscareTimer.setRepeats(false);
         jumpscareTimer.start();
         repaint();
-        
-        
+
     }
 
     //eventvic
@@ -354,29 +354,29 @@ public class InitGameUI extends JPanel {
         double widthScale = getWidth() / 1024.0;
         double heightScale = getHeight() / 768.0;
         doorArea.setBounds(
-            (int) (baseDoorArea.x * widthScale),
-            (int) (baseDoorArea.y * heightScale),
-            (int) (baseDoorArea.width * widthScale),
-            (int) (baseDoorArea.height * heightScale)
+                (int) (baseDoorArea.x * widthScale),
+                (int) (baseDoorArea.y * heightScale),
+                (int) (baseDoorArea.width * widthScale),
+                (int) (baseDoorArea.height * heightScale)
         );
         cameraArea.setBounds(
-            (int) (baseCameraArea.x * widthScale),
-            (int) (baseCameraArea.y * heightScale),
-            (int) (baseCameraArea.width * widthScale),
-            (int) (baseCameraArea.height * heightScale)
+                (int) (baseCameraArea.x * widthScale),
+                (int) (baseCameraArea.y * heightScale),
+                (int) (baseCameraArea.width * widthScale),
+                (int) (baseCameraArea.height * heightScale)
         );
         monitorArea.setBounds(
-            (int) (baseMonitorArea.x * widthScale),
-            (int) (baseMonitorArea.y * heightScale),
-            (int) (baseMonitorArea.width * widthScale),
-            (int) (baseMonitorArea.height * heightScale)
+                (int) (baseMonitorArea.x * widthScale),
+                (int) (baseMonitorArea.y * heightScale),
+                (int) (baseMonitorArea.width * widthScale),
+                (int) (baseMonitorArea.height * heightScale)
         );
 
         roomgenArea.setBounds(
-            (int) (baseroomgenArea.x * widthScale),
-            (int) (baseroomgenArea.y * heightScale),
-            (int) (baseroomgenArea.width * widthScale),
-            (int) (baseroomgenArea.height * heightScale)
+                (int) (baseroomgenArea.x * widthScale),
+                (int) (baseroomgenArea.y * heightScale),
+                (int) (baseroomgenArea.width * widthScale),
+                (int) (baseroomgenArea.height * heightScale)
         );
         drawGame(g2d);
 
@@ -388,10 +388,10 @@ public class InitGameUI extends JPanel {
     //drawstep
     private void drawGame(Graphics2D g2d) {
         g2d.drawImage(background, 0, 0, getWidth(), getHeight(), this);
-    
-        g2d.setColor(new Color(0, 0, 0, 128)); 
+
+        g2d.setColor(new Color(0, 0, 0, 128));
         g2d.fillRect(0, 0, getWidth(), getHeight());
-        
+
         if (!isWatchingCamera) {
             drawOfficeView(g2d);
             drawrotateright(g2d);
@@ -404,19 +404,18 @@ public class InitGameUI extends JPanel {
             drawStaticEffect(g2d);
         }
     }
+
     private Image adjustBrightness(Image image, float scaleFactor) {
         BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bufferedImage.createGraphics();
         g2d.drawImage(image, 0, 0, null);
-        
-      
+
         RescaleOp op = new RescaleOp(scaleFactor, 0, null);
         bufferedImage = op.filter(bufferedImage, null);
-        
+
         g2d.dispose();
         return bufferedImage;
     }
-
 
     //doorevent
     private void drawOfficeView(Graphics2D g2d) {
@@ -439,7 +438,6 @@ public class InitGameUI extends JPanel {
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
         g2d.drawString("Monitor: " + (isMonitorActive ? "ON" : "OFF"), 800, 150);
 
-
     }
 
     //caremaevent
@@ -459,22 +457,21 @@ public class InitGameUI extends JPanel {
             g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
         }
     }
-    
 
     //label assets
     private void drawHUD(Graphics2D g2d) {
-        double widthScale = (double) getWidth() / 1024.0; 
-        double heightScale = (double) getHeight() / 768.0; 
+        double widthScale = (double) getWidth() / 1024.0;
+        double heightScale = (double) getHeight() / 768.0;
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("VT323", Font.BOLD, (int) (20 * heightScale))); 
-        g2d.drawString("Power: " + power + "%", (int)(10 * widthScale), (int)(30 * heightScale));
-        g2d.drawString("Hour: " + (6 - hour), (int)(10 * widthScale), (int)(60 * heightScale));
-        g2d.drawString("Resources: " + resources, (int)(10 * widthScale), (int)(80 * heightScale));
+        g2d.setFont(new Font("VT323", Font.BOLD, (int) (20 * heightScale)));
+        g2d.drawString("Power: " + power + "%", (int) (10 * widthScale), (int) (30 * heightScale));
+        g2d.drawString("Hour: " + (6 - hour), (int) (10 * widthScale), (int) (60 * heightScale));
+        g2d.drawString("Resources: " + resources, (int) (10 * widthScale), (int) (80 * heightScale));
 
-        int barWidth = (int) (100 * widthScale); 
-        int barHeight = (int) (20 * heightScale); 
+        int barWidth = (int) (100 * widthScale);
+        int barHeight = (int) (20 * heightScale);
         int barX = (int) (137 * widthScale);
-        int barY = (int) (14 * heightScale); 
+        int barY = (int) (14 * heightScale);
 
         g2d.setColor(Color.DARK_GRAY);
         g2d.fillRect(barX, barY, barWidth, barHeight);
@@ -498,57 +495,66 @@ public class InitGameUI extends JPanel {
 
     private void drawrotateright(Graphics2D g2d) {
         g2d.setColor(new Color(0, 255, 240, 100));
-        g2d.fill(arrowArearight); 
-        g2d.drawImage(arrowimgr, 980, 675, 250, 100, this); 
+        g2d.fill(arrowArearight);
+        g2d.drawImage(arrowimgr, 980, 675, 250, 100, this);
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
-        g2d.drawString("Generator Room", 1000, 700);    
+        g2d.drawString("Generator Room", 1000, 700);
     }
+
     private void drawrotateleft(Graphics2D g2d) {
         g2d.setColor(new Color(0, 25, 240, 100));
-        g2d.fill(arrowArealeft); 
-        g2d.drawImage(arrowimgl, 0, 675, 250, 100, this); 
+        g2d.fill(arrowArealeft);
+        g2d.drawImage(arrowimgl, 0, 675, 250, 100, this);
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
-        g2d.drawString("Hall Room", 50, 700);    
+        g2d.drawString("Hall Room", 50, 700);
     }
+
     private void initializeMouseListener() {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (arrowArearight.contains(e.getPoint())) {
-                    openPowerIncreasePanel(); 
-                }
-                if(arrowArealeft.contains(e.getPoint())){
                     openPowerIncreasePanel();
+                }
+                if (arrowArealeft.contains(e.getPoint())) {
+                    openPowerIncreasePanell();
                 }
             }
         });
     }
-    
-    //incres
 
-    private void openPowerIncreasePanel() { 
+    //incres
+    private void openPowerIncreasePanel() {
         frame.getContentPane().removeAll();
-    
-      
+
         PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power, resources, up, this);
-    
-        
+
         powerPanel.setOnReturnToGame(() -> {
             frame.getContentPane().removeAll();
             frame.add(this);
             frame.revalidate();
             frame.repaint();
-            startGameTimers(); 
+            startGameTimers();
         });
-    
+
         frame.add(powerPanel);
         frame.revalidate();
         frame.repaint();
     }
-    
 
+    private void openPowerIncreasePanell() { 
+        Hallroom hall = new Hallroom(frame, this);
+        
+        frame.getContentPane().removeAll();   
+        frame.add(hall);                     
+        frame.revalidate();                  
+        frame.repaint();                    
+        
+        frame.setVisible(true);               
+    }
+    
     public void setPower(int updatedPower, int resources, int a) {
         this.power = updatedPower;
         this.resources = resources;
