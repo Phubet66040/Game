@@ -18,34 +18,39 @@ import javax.swing.*;
 
 
 public class InitGameUI extends JPanel {
-
+    //img 
     private final JLabel gameMessage;
     private final Image background;
     private final Image jumpscareImage;
     private final Image cctvImage;
     private final Image monsterImg;
+    //con
     private volatile boolean isDoorLocked = false;
     private volatile boolean isWatchingCamera = false;
     private volatile boolean isMonitorActive = false;
+    private volatile boolean isMonsterNear = false;
+    private volatile boolean showStatic = false;
+    private volatile boolean showJumpscare = false;
+    //value
     private volatile int power = 100;
     private volatile int resources = 5;
     private volatile int hour = 0;
     private volatile int up = 1;
+    private volatile int currentMonsterCam = -1;
+    //time
     private Timer powerTimer;
     private Timer gameTimer;
     private Timer monsterTimer;
-    private volatile boolean isMonsterNear = false;
+    //area
     private final Rectangle doorArea;
     private final Rectangle cameraArea;
     private final Rectangle monitorArea;
-    private volatile boolean showStatic = false;
-    private volatile boolean showJumpscare = false;
+    //eventtrck
     private final Random random = new Random();
     private final Map<Integer, AtomicBoolean> monsterLocations;
-    private volatile int currentMonsterCam = -1;
     private final List<Image> randomImages = new ArrayList<>();
     private JFrame frame;
-    private JButton powerIncreaseButton; // Button to increase power
+    private JButton powerIncreaseButton; 
 
 
     public InitGameUI(JFrame frame) {
@@ -53,7 +58,7 @@ public class InitGameUI extends JPanel {
         setLayout(null);
         initializeUIComponents();
 
-        //img
+        //img set
         ImageIcon bg1Icon = new ImageIcon("assets/background/bgcctv.jpg");
         background = bg1Icon.getImage();
         ImageIcon jumpscareIcon = new ImageIcon("assets\\git\\jumps.gif");
@@ -62,29 +67,31 @@ public class InitGameUI extends JPanel {
         cctvImage = cctvIcon.getImage();
         ImageIcon monIcon = new ImageIcon("assets\\git\\evil-scary.gif");
         monsterImg = monIcon.getImage();
+
+        //img mon ran
         randomImages.add(new ImageIcon("assets\\git\\evil-scary.gif").getImage());
         randomImages.add(new ImageIcon("assets\\git\\Private Website.gif").getImage());
         randomImages.add(new ImageIcon("assets\\git\\[Creepy GIF] When a Shotgun Isn't Enough.gif").getImage());
         randomImages.add(new ImageIcon("assets\\git\\d794cc8f-349c-452d-b596-2bead5189d94.gif").getImage());
-
+        
         //area
         doorArea = new Rectangle(50, 175, 195, 450);
         cameraArea = new Rectangle(800, 190, 3200, 250);
         monitorArea = new Rectangle(800, 190, 320, 250);
-
+        
+        //message
         gameMessage = new JLabel("Survive the night!",SwingConstants.CENTER);
         gameMessage.setFont(new Font("VT323", Font.BOLD, 36));
         gameMessage.setForeground(Color.WHITE);
         gameMessage.setBounds(400, 20, 400, 50);
         add(gameMessage);
-
+        
+        //random mon
         monsterLocations = new HashMap<>();
         for (int i = 0; i < 4; i++) {
             monsterLocations.put(i, new AtomicBoolean(false));
         }
-
         setBackground(Color.BLACK);
-
         SwingUtilities.invokeLater(this::initializeGame);
     }
 
@@ -93,6 +100,8 @@ public class InitGameUI extends JPanel {
         setupClickHandlers();
     }
 
+
+    //onclickevent
     private void setupClickHandlers() {
         addMouseListener(new MouseAdapter() {
             @Override
@@ -100,7 +109,6 @@ public class InitGameUI extends JPanel {
                 if (power <= 0) {
                     return;
                 }
-
                 SwingUtilities.invokeLater(() -> {
                     if (doorArea.contains(e.getPoint())) {
                         toggleDoor();
@@ -122,6 +130,7 @@ public class InitGameUI extends JPanel {
         });
     }
 
+    //eventonmonitor
     private void toggleMonitor() {
         SwingUtilities.invokeLater(() -> {
             isMonitorActive = !isMonitorActive;
@@ -130,7 +139,8 @@ public class InitGameUI extends JPanel {
             repaint();
         });
     }
-
+    
+    //timeingame
     private void startGameTimers() {
         powerTimer = new Timer(5000, e -> {
             resources += up;
@@ -174,6 +184,7 @@ public class InitGameUI extends JPanel {
         monsterTimer.start();
     }
 
+    //went moncom
     private void checkCamera(int camNumber) {
         SwingUtilities.invokeLater(() -> {
             power -= 1;
@@ -193,6 +204,7 @@ public class InitGameUI extends JPanel {
         });
     }
 
+    //eventonddor
     private void toggleDoor() {
         SwingUtilities.invokeLater(() -> {
             isDoorLocked = !isDoorLocked;
@@ -201,12 +213,11 @@ public class InitGameUI extends JPanel {
             repaint();
         });
     }
-
+    //eventoncam
     private void toggleCamera() {
         SwingUtilities.invokeLater(() -> {
             isWatchingCamera = !isWatchingCamera;
             showStatic = true;
-
             Timer staticTimer = new Timer(500, e -> {
                 SwingUtilities.invokeLater(() -> {
                     showStatic = false;
@@ -216,19 +227,18 @@ public class InitGameUI extends JPanel {
             });
             staticTimer.setRepeats(false);
             staticTimer.start();
-
             power -= 2;
             repaint();
         });
     }
 
+    //event mongotcom
     private void updateMonsterPositions() {
         monsterLocations.forEach((key, value) -> value.set(false));
 
         if (random.nextInt(100) < 50) {
             int newLocation = random.nextInt(4);
             monsterLocations.get(newLocation).set(true);
-
             if (newLocation == 0) {
                 isMonsterNear = true;
                 if (!isDoorLocked) {
@@ -250,26 +260,25 @@ public class InitGameUI extends JPanel {
         repaint();
     }
 
+    //eventgameover
     private void gameOver(String reason) {
         stopTimers();
         showJumpscare = true;
         playSound("assets\\sound\\Jumpsc.wav");
-
         Timer jumpscareTimer = new Timer(3000, e -> {
             showJumpscare = false;
             repaint();
             ((Timer) e.getSource()).stop();
-
             gameMessage.setText("Game Over: " + reason);
             JOptionPane.showMessageDialog(this, "Game Over: " + reason);
             System.exit(0);
         });
         jumpscareTimer.setRepeats(false);
         jumpscareTimer.start();
-
         repaint();
     }
 
+    //eventvic
     private void victory() {
         stopTimers();
         gameMessage.setText("You survived the night!");
