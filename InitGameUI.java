@@ -50,7 +50,8 @@ public class InitGameUI extends JPanel {
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private final List<Image> randomImages = new ArrayList<>();
     private JFrame frame;
-    private JButton powerIncreaseButton; 
+    private JButton powerIncreaseButton;
+    private final Map<Integer, Image> cameraGhostImages = new HashMap<>(); 
 
 
     public InitGameUI(JFrame frame) {
@@ -164,7 +165,6 @@ public class InitGameUI extends JPanel {
                 repaint();
             });
         });
-
         gameTimer = new Timer(20000, e -> {
             SwingUtilities.invokeLater(() -> {
                 hour++;
@@ -174,14 +174,24 @@ public class InitGameUI extends JPanel {
                 repaint();
             });
         });
-
         monsterTimer = new Timer(5000, e -> {
             SwingUtilities.invokeLater(this::updateMonsterPositions);
         });
-
         powerTimer.start();
         gameTimer.start();
         monsterTimer.start();
+    }
+    //stop
+    private void stopTimers() {
+        if (powerTimer != null) {
+            powerTimer.stop();
+        }
+        if (gameTimer != null) {
+            gameTimer.stop();
+        }
+        if (monsterTimer != null) {
+            monsterTimer.stop();
+        }
     }
 
     //went moncom
@@ -286,18 +296,7 @@ public class InitGameUI extends JPanel {
         System.exit(0);
     }
 
-    private void stopTimers() {
-        if (powerTimer != null) {
-            powerTimer.stop();
-        }
-        if (gameTimer != null) {
-            gameTimer.stop();
-        }
-        if (monsterTimer != null) {
-            monsterTimer.stop();
-        }
-    }
-
+    //sound
     private void playSound(String soundFile) {
         try {
             File soundPath = new File(soundFile);
@@ -310,6 +309,7 @@ public class InitGameUI extends JPanel {
         }
     }
 
+    //draw
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -323,21 +323,22 @@ public class InitGameUI extends JPanel {
         }
     }
 
+    //drawstep
+    
     private void drawGame(Graphics2D g2d) {
         g2d.drawImage(background, 0, 0, getWidth(), getHeight(), this);
-
         if (!isWatchingCamera) {
             drawOfficeView(g2d);
         } else {
             drawCameraView(g2d);
         }
-
         drawHUD(g2d);
-
         if (showStatic) {
             drawStaticEffect(g2d);
         }
     }
+
+    //doorevent
 
     private void drawOfficeView(Graphics2D g2d) {
         g2d.setColor(isDoorLocked ? new Color(0, 255, 0, 100) : new Color(255, 0, 0, 100));
@@ -349,7 +350,8 @@ public class InitGameUI extends JPanel {
 
         if (isMonsterNear && !isDoorLocked) {
             g2d.setColor(Color.RED);
-            g2d.fillOval(30, 300, 50, 50);
+            g2d.fillRect(45, 280, 20, 40);
+            g2d.fillOval(45, 330, 20, 20);
         }
 
         g2d.setColor(isMonitorActive ? new Color(0, 0, 255, 100) : new Color(255, 255, 0, 100));
@@ -359,32 +361,25 @@ public class InitGameUI extends JPanel {
         g2d.drawString("Monitor: " + (isMonitorActive ? "ON" : "OFF"), 800, 150);
     }
 
-    private final Map<Integer, Image> cameraGhostImages = new HashMap<>();
-
+    //caremaevent
     private void drawCameraView(Graphics2D g2d) {
         for (int i = 0; i < 4; i++) {
             Rectangle camArea = new Rectangle(100 + i * 200, 100, 180, 120);
-
             g2d.setColor(Color.DARK_GRAY);
             g2d.fill(camArea);
-
             if (monsterLocations.get(i).get()) {
-
                 cameraGhostImages.putIfAbsent(i, randomImages.get(random.nextInt(randomImages.size())));
-
                 g2d.drawImage(cameraGhostImages.get(i), 100 + i * 200, 100, 180, 120, this);
             } else {
-
                 cameraGhostImages.remove(i);
-
                 g2d.drawImage(cctvImage, 100 + i * 200, 100, 180, 120, this);
             }
-
             g2d.setColor(Color.WHITE);
             g2d.drawString("CAM " + (i + 1), 100 + i * 200, 80);
         }
     }
 
+    //label assets
     private void drawHUD(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 20));
@@ -397,7 +392,6 @@ public class InitGameUI extends JPanel {
         int barY = 14;
         g2d.setColor(Color.DARK_GRAY);
         g2d.fillRect(barX, barY, barWidth, barHeight);
-
         int filledWidth = (int) (barWidth * (power / 100.0));
         if (power > 60) {
             g2d.setColor(Color.GREEN);
@@ -420,7 +414,6 @@ public class InitGameUI extends JPanel {
 
     //incres
     private void initializeUIComponents() {
-        
         powerIncreaseButton = new JButton("PowerSupplies");
         powerIncreaseButton.setFont(new Font("VT323", Font.PLAIN, 20));
         powerIncreaseButton.setBounds(50, 90, 200, 50);
@@ -428,18 +421,11 @@ public class InitGameUI extends JPanel {
         powerIncreaseButton.setForeground(Color.WHITE);
         powerIncreaseButton.setFocusPainted(false); 
         powerIncreaseButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
-        powerIncreaseButton.setPreferredSize(new Dimension(200, 40)); 
-
+        powerIncreaseButton.setPreferredSize(new Dimension(200, 40));
         powerIncreaseButton.addActionListener(e -> openPowerIncreasePanel());
         add(powerIncreaseButton);
-        
-        
     }
-
-    
-
     private void openPowerIncreasePanel() { 
-        
         frame.getContentPane().removeAll();
         PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power,resources,up,this); 
         powerPanel.setOnReturnToGame(() -> {
@@ -449,15 +435,10 @@ public class InitGameUI extends JPanel {
         frame.revalidate();
         frame.repaint();
     }
-    
-    
-
     public void setPower(int updatedPower, int resources,int a) {
         this.power = updatedPower;
         this.resources = resources;  
         this.up = a;
         repaint(); 
-    }
-
-    
+    } 
 }
