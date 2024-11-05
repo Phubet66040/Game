@@ -561,4 +561,8 @@ public class InitGameUI extends JPanel {
         this.up = a;
         repaint();
     }
+    public void setscore(int score){
+        this.resources += score;
+        repaint();
+    }
 }
