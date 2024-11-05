@@ -1,8 +1,8 @@
+import javax.sound.sampled.*;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import javax.sound.sampled.*;
-import javax.swing.*;
 
 public class Homepage extends JPanel {
     private JButton startButton, settingButton, exitButton;
@@ -47,12 +47,12 @@ public class Homepage extends JPanel {
 
     private JButton createCustomButton(String text) {
         JButton button = new JButton(text);
-        button.setBackground(new Color(0, 0, 0, 0)); 
+        button.setBackground(new Color(0, 0, 0, 0));
         button.setForeground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.PLAIN, 20)); 
-        button.setFocusPainted(false); 
-        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
-        button.setPreferredSize(new Dimension(200, 40)); 
+        button.setFont(new Font("Arial", Font.PLAIN, 20));
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        button.setPreferredSize(new Dimension(200, 40));
 
         button.addMouseListener(new ButtonHoverEffect());
         button.addActionListener(e -> {
@@ -76,8 +76,8 @@ public class Homepage extends JPanel {
         } else {
             Graphics2D g2d = (Graphics2D) g;
             GradientPaint gp = new GradientPaint(
-                0, 0, new Color(20, 20, 20),
-                0, getHeight(), new Color(60, 60, 60)
+                    0, 0, new Color(20, 20, 20),
+                    0, getHeight(), new Color(60, 60, 60)
             );
             g2d.setPaint(gp);
             g2d.fillRect(0, 0, getWidth(), getHeight());
@@ -100,13 +100,12 @@ public class Homepage extends JPanel {
     }
 
     private void startGame() {
-        stopMusic(); 
+        stopMusic();
         frame.getContentPane().removeAll();
-        frame.add(new InitGameUI(frame));
+        frame.add(new Cutscene(frame)); // Add the cutscene here
         frame.revalidate();
         frame.repaint();
     }
-    
 
     private void showSettings() {
         SettingsPanel settingsPanel = new SettingsPanel(this, frame);
@@ -119,11 +118,11 @@ public class Homepage extends JPanel {
 
     private void exitGame() {
         int choice = JOptionPane.showConfirmDialog(
-            this,
-            "Are you sure you want to exit?",
-            "Exit Game",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE
+                this,
+                "Are you sure you want to exit?",
+                "Exit Game",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
         );
         if (choice == JOptionPane.YES_OPTION) {
             System.exit(0);
@@ -158,8 +157,8 @@ public class Homepage extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setUndecorated(true);
         frame.add(new Homepage(frame));
-        frame.setSize(1280, 800); 
-        frame.setLocationRelativeTo(null); 
+        frame.setSize(1280, 800);
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 }
