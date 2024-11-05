@@ -92,12 +92,12 @@ public class InitGameUI extends JPanel {
         baseDoorArea = new Rectangle(50, 175, 145, 430);
         baseCameraArea = new Rectangle(640, 180, 250, 250);
         baseMonitorArea = new Rectangle(640, 180, 250, 250);
-        baseroomgenArea = new Rectangle(800, 700, 200, 50);
+        baseroomgenArea = new Rectangle(1000, 700, 200, 50);
         doorArea = new Rectangle(50, 175, 145, 430);
         cameraArea = new Rectangle(640, 180, 250, 250);
         monitorArea = new Rectangle(640, 180, 250, 250);
-        roomgenArea = new Rectangle(800,700,200,50);
-        arrowArea = new Rectangle(800, 700, 200, 50);
+        roomgenArea = new Rectangle(1000,700,200,50);
+        arrowArea = new Rectangle(1000, 700, 200, 50);
 
         //message
         gameMessage = new JLabel("Survive the night!", SwingConstants.CENTER);
@@ -493,7 +493,7 @@ public class InitGameUI extends JPanel {
     private void drawrotate(Graphics2D g2d) {
         g2d.setColor(new Color(0, 255, 240, 100));
         g2d.fill(arrowArea); 
-        g2d.drawImage(arrowimg, 800, 700, 200, 50, this); 
+        g2d.drawImage(arrowimg, 980, 675, 250, 100, this); 
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
         g2d.drawString("Generator Room", 1000, 700); 
