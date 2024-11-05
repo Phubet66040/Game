@@ -1,6 +1,8 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,7 +65,8 @@ public class InitGameUI extends JPanel {
 
         //img set
         ImageIcon bg1Icon = new ImageIcon("assets\\background\\Untitled (4).jpg");
-        background = bg1Icon.getImage();
+        background = adjustBrightness(bg1Icon.getImage(), 0.5f); 
+        
         ImageIcon jumpscareIcon = new ImageIcon("assets\\git\\jumps.gif");
         jumpscareImage = jumpscareIcon.getImage();
         ImageIcon cctvIcon = new ImageIcon("assets\\git\\download.gif");
@@ -363,6 +366,11 @@ public class InitGameUI extends JPanel {
     //drawstep
     private void drawGame(Graphics2D g2d) {
         g2d.drawImage(background, 0, 0, getWidth(), getHeight(), this);
+        
+      
+        g2d.setColor(new Color(0, 0, 0, 128)); 
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        
         if (!isWatchingCamera) {
             drawOfficeView(g2d);
         } else {
@@ -373,6 +381,20 @@ public class InitGameUI extends JPanel {
             drawStaticEffect(g2d);
         }
     }
+    private Image adjustBrightness(Image image, float scaleFactor) {
+        BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = bufferedImage.createGraphics();
+        g2d.drawImage(image, 0, 0, null);
+        
+      
+        RescaleOp op = new RescaleOp(scaleFactor, 0, null);
+        bufferedImage = op.filter(bufferedImage, null);
+        
+        g2d.dispose();
+        return bufferedImage;
+    }
+    
+    
 
     //doorevent
     private void drawOfficeView(Graphics2D g2d) {
@@ -463,17 +485,26 @@ public class InitGameUI extends JPanel {
         powerIncreaseButton.addActionListener(e -> openPowerIncreasePanel());
         add(powerIncreaseButton);
     }
-
-    private void openPowerIncreasePanel() {
+    private void openPowerIncreasePanel() { 
         frame.getContentPane().removeAll();
+    
+        // สร้าง PowerIncreasePanel ใหม่และส่งพารามิเตอร์ให้ถูกต้อง
         PowerIncreasePanel powerPanel = new PowerIncreasePanel(frame, power, resources, up, this);
+    
+        // กำหนดให้เมื่อกดกลับจะเรียก startGameTimers()
         powerPanel.setOnReturnToGame(() -> {
-            startGameTimers();
+            frame.getContentPane().removeAll();
+            frame.add(this); // เพิ่มหน้าจอ InitGameUI กลับมา
+            frame.revalidate();
+            frame.repaint();
+            startGameTimers(); // เริ่มตัวจับเวลาใหม่
         });
+    
         frame.add(powerPanel);
         frame.revalidate();
         frame.repaint();
     }
+    
 
     public void setPower(int updatedPower, int resources, int a) {
         this.power = updatedPower;
