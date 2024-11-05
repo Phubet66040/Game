@@ -26,7 +26,8 @@ public class InitGameUI extends JPanel {
     private final Image jumpscareImage;
     private final Image cctvImage;
     private final Image monsterImg;
-    private final Image arrowimg;
+    private final Image arrowimgr;
+    private final Image arrowimgl;
     //con
     private volatile boolean isDoorLocked = false;
     private volatile boolean isWatchingCamera = false;
@@ -45,7 +46,8 @@ public class InitGameUI extends JPanel {
     private Timer gameTimer;
     private Timer monsterTimer;
     //area
-    private final Rectangle arrowArea;
+    private final Rectangle arrowArearight;
+    private final Rectangle arrowArealeft;
     private final Rectangle roomgenArea;
     private final Rectangle doorArea;
     private final Rectangle cameraArea;
@@ -79,7 +81,8 @@ public class InitGameUI extends JPanel {
         cctvImage = cctvIcon.getImage();
         ImageIcon monIcon = new ImageIcon("assets\\git\\evil-scary.gif");
         monsterImg = monIcon.getImage();
-        arrowimg = new ImageIcon("assets\\img\\arrow.png").getImage(); 
+        arrowimgr = new ImageIcon("assets\\img\\arrow.png").getImage(); 
+        arrowimgl = new ImageIcon("assets\\img\\arrow copy.png").getImage(); 
         
 
         //img mon ran
@@ -97,7 +100,9 @@ public class InitGameUI extends JPanel {
         cameraArea = new Rectangle(640, 180, 250, 250);
         monitorArea = new Rectangle(640, 180, 250, 250);
         roomgenArea = new Rectangle(1000,700,200,50);
-        arrowArea = new Rectangle(1000, 700, 200, 50);
+        arrowArearight = new Rectangle(1000, 700, 200, 50);
+        arrowArealeft = new Rectangle(20, 700, 200, 50);
+
 
         //message
         gameMessage = new JLabel("Survive the night!", SwingConstants.CENTER);
@@ -389,7 +394,8 @@ public class InitGameUI extends JPanel {
         
         if (!isWatchingCamera) {
             drawOfficeView(g2d);
-            drawrotate(g2d);
+            drawrotateright(g2d);
+            drawrotateleft(g2d);
         } else {
             drawCameraView(g2d);
         }
@@ -490,21 +496,31 @@ public class InitGameUI extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
-    private void drawrotate(Graphics2D g2d) {
+    private void drawrotateright(Graphics2D g2d) {
         g2d.setColor(new Color(0, 255, 240, 100));
-        g2d.fill(arrowArea); 
-        g2d.drawImage(arrowimg, 980, 675, 250, 100, this); 
+        g2d.fill(arrowArearight); 
+        g2d.drawImage(arrowimgr, 980, 675, 250, 100, this); 
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("VT323", Font.BOLD, 24));
-        g2d.drawString("Generator Room", 1000, 700); 
-        
+        g2d.drawString("Generator Room", 1000, 700);    
+    }
+    private void drawrotateleft(Graphics2D g2d) {
+        g2d.setColor(new Color(0, 25, 240, 100));
+        g2d.fill(arrowArealeft); 
+        g2d.drawImage(arrowimgl, 0, 675, 250, 100, this); 
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("VT323", Font.BOLD, 24));
+        g2d.drawString("Hall Room", 50, 700);    
     }
     private void initializeMouseListener() {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (arrowArea.contains(e.getPoint())) {
+                if (arrowArearight.contains(e.getPoint())) {
                     openPowerIncreasePanel(); 
+                }
+                if(arrowArealeft.contains(e.getPoint())){
+                    openPowerIncreasePanel();
                 }
             }
         });
