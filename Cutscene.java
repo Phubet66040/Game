@@ -1,6 +1,5 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class Cutscene extends JPanel {
@@ -8,23 +7,50 @@ public class Cutscene extends JPanel {
     private int currentImageIndex = 0;
     private static final int DELAY = 3000; 
     private Timer timer;
-
+    private Rectangle skipArea;
+    private boolean isHovering = false;
+    
     public Cutscene(JFrame frame) {
         setLayout(new BorderLayout());
         loadImages();
-
+        skipArea = new Rectangle(900, 700, 200, 50);  
+        
       
-        JButton skipButton = new JButton("Skip");
-        skipButton.addActionListener(new ActionListener() {
+        addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                timer.stop();
-                startGame(frame);
+            public void mouseClicked(MouseEvent e) {
+                if (skipArea.contains(e.getPoint())) {
+                    timer.stop();
+                    startGame(frame);
+                }
+            }
+            
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (skipArea.contains(e.getPoint())) {
+                    isHovering = true;
+                    repaint();
+                }
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                isHovering = false;
+                repaint();
             }
         });
-        add(skipButton, BorderLayout.SOUTH);
-
-      
+        
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                boolean wasHovering = isHovering;
+                isHovering = skipArea.contains(e.getPoint());
+                if (wasHovering != isHovering) {
+                    repaint();
+                }
+            }
+        });
+        
         timer = new Timer(DELAY, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -51,6 +77,26 @@ public class Cutscene extends JPanel {
         super.paintComponent(g);
         if (cutsceneImages.length > 0) {
             g.drawImage(cutsceneImages[currentImageIndex], 0, 0, getWidth(), getHeight(), this);
+            
+            Graphics2D g2d = (Graphics2D) g;
+          
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+       
+            if (isHovering) {
+                g2d.setColor(new Color(255, 255, 255, 80));  
+            } else {
+                g2d.setColor(new Color(255, 255, 0, 100));  
+            }
+            g2d.fill(skipArea);
+            
+           
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Arial", Font.BOLD, 20));
+            FontMetrics metrics = g2d.getFontMetrics();
+            String skipText = "Skip";
+            int x = skipArea.x + (skipArea.width - metrics.stringWidth(skipText)) / 2;
+            int y = skipArea.y + ((skipArea.height - metrics.getHeight()) / 2) + metrics.getAscent();
+            g2d.drawString(skipText, x, y);
         }
     }
 
