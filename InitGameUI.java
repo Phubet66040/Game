@@ -153,7 +153,8 @@ public class InitGameUI extends JPanel {
         isGamePaused = !isGamePaused; 
         if (isGamePaused) {
             stopTimers();
-
+            cleanup();
+            JOptionPane.showMessageDialog(this, "Game Stop " );
         } else {
             startGameTimers();
         }
@@ -425,7 +426,6 @@ public class InitGameUI extends JPanel {
         Timer jumpscareTimer = new Timer(2500, e -> {
             showJumpscare = false;
             repaint();
-            gameMessage.setText("Game Over: " + reason);
             JOptionPane.showMessageDialog(this, "Game Over: " + reason);
             frame.getContentPane().removeAll();
             frame.add(new Homepage(frame));
