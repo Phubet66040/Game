@@ -42,6 +42,7 @@ public class InitGameUI extends JPanel {
     private volatile boolean showJumpscare = false;
     private volatile boolean isHeartbeatPlaying = false;
     private volatile boolean isWarningPlaying = false;
+    private boolean isGamePaused = false;
     //value
     private volatile int power = 100;
     private volatile int resources = 5;
@@ -71,7 +72,7 @@ public class InitGameUI extends JPanel {
     private final List<Image> randomImages = new ArrayList<>();
     private JFrame frame;
     private final Map<Integer, Image> cameraGhostImages = new HashMap<>();
-     private ScheduledExecutorService scheduler;
+    private ScheduledExecutorService scheduler;
 
     public InitGameUI(JFrame frame) {
         this.frame = frame;
@@ -79,6 +80,8 @@ public class InitGameUI extends JPanel {
 
         initializeMouseListener();
         initializeAudio();
+        initializePauseButton();
+       
 
         //img set
         ImageIcon bg1Icon = new ImageIcon("assets\\background\\Untitled (4).jpg");
@@ -131,7 +134,30 @@ public class InitGameUI extends JPanel {
         startGameTimers();
         setupClickHandlers();
         scheduler = Executors.newScheduledThreadPool(1);
-        
+
+    }
+
+    private void initializePauseButton() {
+        Rectangle pauseButtonArea = new Rectangle(10, 10, 30, 30);
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (pauseButtonArea.contains(e.getPoint())) {
+                    togglePauseGame();
+                }
+            }
+        });
+    }
+
+    private void togglePauseGame() {
+        isGamePaused = !isGamePaused; 
+        if (isGamePaused) {
+            stopTimers();
+
+        } else {
+            startGameTimers();
+        }
+        repaint();
     }
 
     //onclickevent
@@ -314,7 +340,7 @@ public class InitGameUI extends JPanel {
     private void playWarningAndThenUpdate(int newLocation) {
         if (!isWarningPlaying && warningClip != null) {
             warningClip.setFramePosition(0);
-            setClipVolume(warningClip, 0.7f); 
+            setClipVolume(warningClip, 0.7f);
             warningClip.start();
             isWarningPlaying = true;
         }
@@ -322,8 +348,9 @@ public class InitGameUI extends JPanel {
             SwingUtilities.invokeLater(() -> {
                 updateMonsterPosition(newLocation);
             });
-        }, 3000, TimeUnit.MILLISECONDS); 
+        }, 3000, TimeUnit.MILLISECONDS);
     }
+
     //event monter check near sound
     private void updateMonsterPosition(int newLocation) {
         monsterLocations.get(newLocation).set(true);
@@ -354,10 +381,11 @@ public class InitGameUI extends JPanel {
             }
         }
     }
+
     //event mongotcom and re
     private void updateMonsterPositions() {
         monsterLocations.forEach((key, value) -> value.set(false));
-    
+
         if (random.nextInt(100) < 50) {
             int newLocation = random.nextInt(4);
             playWarningAndThenUpdate(newLocation);
@@ -434,67 +462,6 @@ public class InitGameUI extends JPanel {
             clip.start();
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
-        }
-    }
-
-    //draw
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        double widthScale = getWidth() / 1024.0;
-        double heightScale = getHeight() / 768.0;
-        doorArea.setBounds(
-                (int) (baseDoorArea.x * widthScale),
-                (int) (baseDoorArea.y * heightScale),
-                (int) (baseDoorArea.width * widthScale),
-                (int) (baseDoorArea.height * heightScale)
-        );
-        cameraArea.setBounds(
-                (int) (baseCameraArea.x * widthScale),
-                (int) (baseCameraArea.y * heightScale),
-                (int) (baseCameraArea.width * widthScale),
-                (int) (baseCameraArea.height * heightScale)
-        );
-        monitorArea.setBounds(
-                (int) (baseMonitorArea.x * widthScale),
-                (int) (baseMonitorArea.y * heightScale),
-                (int) (baseMonitorArea.width * widthScale),
-                (int) (baseMonitorArea.height * heightScale)
-        );
-
-        roomgenArea.setBounds(
-                (int) (baseroomgenArea.x * widthScale),
-                (int) (baseroomgenArea.y * heightScale),
-                (int) (baseroomgenArea.width * widthScale),
-                (int) (baseroomgenArea.height * heightScale)
-        );
-        drawGame(g2d);
-
-        if (showJumpscare) {
-            g2d.drawImage(jumpscareImage, 0, 0, getWidth(), getHeight(), this);
-        }
-    }
-
-    //drawstep
-    private void drawGame(Graphics2D g2d) {
-        g2d.drawImage(background, 0, 0, getWidth(), getHeight(), this);
-
-        g2d.setColor(new Color(0, 0, 0, 128));
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-
-        if (!isWatchingCamera) {
-            drawOfficeView(g2d);
-            drawrotateright(g2d);
-            drawrotateleft(g2d);
-        } else {
-            drawCameraView(g2d);
-        }
-        drawHUD(g2d);
-        if (showStatic) {
-            drawStaticEffect(g2d);
         }
     }
 
@@ -657,5 +624,74 @@ public class InitGameUI extends JPanel {
     public void setscore(int score) {
         this.resources += score;
         repaint();
+    }
+
+    //draw
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        double widthScale = getWidth() / 1024.0;
+        double heightScale = getHeight() / 768.0;
+        doorArea.setBounds(
+                (int) (baseDoorArea.x * widthScale),
+                (int) (baseDoorArea.y * heightScale),
+                (int) (baseDoorArea.width * widthScale),
+                (int) (baseDoorArea.height * heightScale)
+        );
+        cameraArea.setBounds(
+                (int) (baseCameraArea.x * widthScale),
+                (int) (baseCameraArea.y * heightScale),
+                (int) (baseCameraArea.width * widthScale),
+                (int) (baseCameraArea.height * heightScale)
+        );
+        monitorArea.setBounds(
+                (int) (baseMonitorArea.x * widthScale),
+                (int) (baseMonitorArea.y * heightScale),
+                (int) (baseMonitorArea.width * widthScale),
+                (int) (baseMonitorArea.height * heightScale)
+        );
+
+        roomgenArea.setBounds(
+                (int) (baseroomgenArea.x * widthScale),
+                (int) (baseroomgenArea.y * heightScale),
+                (int) (baseroomgenArea.width * widthScale),
+                (int) (baseroomgenArea.height * heightScale)
+        );
+        drawGame(g2d);
+        if (isGamePaused) {
+            g.setColor(Color.RED); 
+        } else {
+            g.setColor(Color.BLACK); 
+        }
+        
+        g.fillRect(10, 10, 10, 30); 
+        g.fillRect(25, 10, 10, 30); 
+
+        if (showJumpscare) {
+            g2d.drawImage(jumpscareImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
+
+    //drawstep
+    private void drawGame(Graphics2D g2d) {
+        g2d.drawImage(background, 0, 0, getWidth(), getHeight(), this);
+
+        g2d.setColor(new Color(0, 0, 0, 128));
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        if (!isWatchingCamera) {
+            drawOfficeView(g2d);
+            drawrotateright(g2d);
+            drawrotateleft(g2d);
+        } else {
+            drawCameraView(g2d);
+        }
+        drawHUD(g2d);
+        if (showStatic) {
+            drawStaticEffect(g2d);
+        }
     }
 }

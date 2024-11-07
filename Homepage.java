@@ -22,7 +22,7 @@ public class Homepage extends JPanel {
             ImageIcon bgIcon = new ImageIcon("assets\\git\\bgghome.gif");
             backgroundImage = bgIcon.getImage();
         } catch (Exception e) {
-            System.out.println("Background image loading failed");
+            System.out.println("failed");
         }
 
         startButton = createCustomButton("Start Night Shift");
@@ -102,7 +102,7 @@ public class Homepage extends JPanel {
     private void startGame() {
         stopMusic();
         frame.getContentPane().removeAll();
-        frame.add(new Cutscene(frame)); // Add the cutscene here
+        frame.add(new Cutscene(frame)); 
         frame.revalidate();
         frame.repaint();
     }
@@ -136,7 +136,7 @@ public class Homepage extends JPanel {
             clip.open(audioStream);
             clip.loop(Clip.LOOP_CONTINUOUSLY);
         } catch (Exception e) {
-            System.out.println("Music playback failed: " + e.getMessage());
+            System.out.println("Music failed: " + e.getMessage());
         }
     }
 
@@ -152,7 +152,7 @@ public class Homepage extends JPanel {
         }
     }
     public void updateGameSettings(){
-        
+
     }
     public static void main(String[] args) {
         JFrame frame = new JFrame("The Last Refuge");

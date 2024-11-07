@@ -1,5 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 
 public class Cutscene extends JPanel {
@@ -9,9 +13,12 @@ public class Cutscene extends JPanel {
     private Timer timer;
     private Rectangle skipArea;
     private boolean isHovering = false;
+    private Clip clip;
+    
     
     public Cutscene(JFrame frame) {
         setLayout(new BorderLayout());
+        playMusic("assets\\sound\\35mm film and sound effect.wav");
         loadImages();
         skipArea = new Rectangle(900, 700, 200, 50);  
         
@@ -99,8 +106,26 @@ public class Cutscene extends JPanel {
             g2d.drawString(skipText, x, y);
         }
     }
+    public void playMusic(String filePath) {
+        try {
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(filePath));
+            clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (Exception e) {
+            System.out.println("Music failed: " + e.getMessage());
+        }
+    }
+
+    public void stopMusic() {
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+        }
+    }
+
 
     private void startGame(JFrame frame) {
+        stopMusic();
         frame.getContentPane().removeAll();
         frame.add(new InitGameUI(frame));
         frame.revalidate();
