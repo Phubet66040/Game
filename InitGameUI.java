@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
@@ -35,6 +37,7 @@ public class InitGameUI extends JPanel {
     private volatile boolean isMonsterNear = false;
     private volatile boolean showStatic = false;
     private volatile boolean showJumpscare = false;
+    private volatile boolean isHeartbeatPlaying = false;
     //value
     private volatile int power = 100;
     private volatile int resources = 5;
@@ -57,12 +60,11 @@ public class InitGameUI extends JPanel {
     private final Rectangle baseroomgenArea;
     private final Rectangle baseMonitorArea;
     //eventtrck
-
+    private Clip heartbeatClip;
     private final Random random = new Random();
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private final List<Image> randomImages = new ArrayList<>();
     private JFrame frame;
-    private JButton powerIncreaseButton;
     private final Map<Integer, Image> cameraGhostImages = new HashMap<>();
 
     public InitGameUI(JFrame frame) {
@@ -70,6 +72,7 @@ public class InitGameUI extends JPanel {
         setLayout(null);
 
         initializeMouseListener();
+        initializeAudio();
 
         //img set
         ImageIcon bg1Icon = new ImageIcon("assets\\background\\Untitled (4).jpg");
@@ -198,7 +201,7 @@ public class InitGameUI extends JPanel {
                 repaint();
             });
         });
-        monsterTimer = new Timer(5000, e -> {
+        monsterTimer = new Timer(6000, e -> {
             SwingUtilities.invokeLater(this::updateMonsterPositions);
         });
         powerTimer.start();
@@ -271,13 +274,22 @@ public class InitGameUI extends JPanel {
     //event mongotcom
     private void updateMonsterPositions() {
         monsterLocations.forEach((key, value) -> value.set(false));
-
         if (random.nextInt(100) < 50) {
             int newLocation = random.nextInt(4);
             monsterLocations.get(newLocation).set(true);
-            if (newLocation == 0) {
+            if (newLocation == 0 || newLocation == 1) {
                 isMonsterNear = true;
-                if (!isDoorLocked) {
+                if (!isHeartbeatPlaying) {
+                    heartbeatClip.setFramePosition(0);
+                    if (newLocation == 0) {
+                        setClipVolume(heartbeatClip, 1.0f);
+                    } else if (newLocation == 1) {
+                        setClipVolume(heartbeatClip, 0.5f);
+                    }
+                    heartbeatClip.start();
+                    isHeartbeatPlaying = true;
+                }
+                if (newLocation == 0 && !isDoorLocked) {
                     Timer attackTimer = new Timer(1000, e -> {
                         SwingUtilities.invokeLater(() -> {
                             if (!isDoorLocked) {
@@ -291,9 +303,56 @@ public class InitGameUI extends JPanel {
                 }
             } else {
                 isMonsterNear = false;
+                if (isHeartbeatPlaying) {
+                    heartbeatClip.stop();
+                    isHeartbeatPlaying = false;
+                }
+            }
+        } else {
+            isMonsterNear = false;
+            if (isHeartbeatPlaying) {
+                heartbeatClip.stop();
+                isHeartbeatPlaying = false;
             }
         }
         repaint();
+    }
+
+    //soundmake
+    private void initializeAudio() {
+        try {
+            File heartbeatFile = new File("assets\\sound\\sa.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(heartbeatFile);
+            heartbeatClip = AudioSystem.getClip();
+            heartbeatClip.open(audioInputStream);
+            heartbeatClip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    isHeartbeatPlaying = false;
+                    if (isMonsterNear) {
+                        heartbeatClip.setFramePosition(0);
+                        heartbeatClip.start();
+                        isHeartbeatPlaying = true;
+                    }
+                }
+            });
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            System.err.println("Error" + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void setClipVolume(Clip clip, float volume) {
+        if (clip != null) {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
+            gainControl.setValue(Math.max(gainControl.getMinimum(), Math.min(gainControl.getMaximum(), dB)));
+        }
+    }
+
+    public void cleanup() {
+        if (heartbeatClip != null) {
+            heartbeatClip.close();
+        }
     }
 
     //eventgameover
@@ -544,23 +603,24 @@ public class InitGameUI extends JPanel {
         frame.repaint();
     }
 
-    private void openPowerIncreasePanell() { 
+    private void openPowerIncreasePanell() {
         Hallroom hall = new Hallroom(frame, this);
-        
-        frame.getContentPane().removeAll();   
-        frame.add(hall);                     
-        frame.revalidate();                  
-        frame.repaint();                    
-        frame.setVisible(true);               
+
+        frame.getContentPane().removeAll();
+        frame.add(hall);
+        frame.revalidate();
+        frame.repaint();
+        frame.setVisible(true);
     }
-    
+
     public void setPower(int updatedPower, int resources, int a) {
         this.power = updatedPower;
         this.resources = resources;
         this.up = a;
         repaint();
     }
-    public void setscore(int score){
+
+    public void setscore(int score) {
         this.resources += score;
         repaint();
     }
