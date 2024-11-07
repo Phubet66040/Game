@@ -1,21 +1,36 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.*;
 
 public class Cutscene extends JPanel {
     private Image[] cutsceneImages;
     private int currentImageIndex = 0;
     private static final int DELAY = 3000; 
+    private Timer timer;
 
     public Cutscene(JFrame frame) {
+        setLayout(new BorderLayout());
         loadImages();
-        Timer timer = new Timer(DELAY, new ActionListener() {
+
+      
+        JButton skipButton = new JButton("Skip");
+        skipButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                timer.stop();
+                startGame(frame);
+            }
+        });
+        add(skipButton, BorderLayout.SOUTH);
+
+      
+        timer = new Timer(DELAY, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 currentImageIndex++;
                 if (currentImageIndex >= cutsceneImages.length) {
-                    ((Timer) e.getSource()).stop();
+                    timer.stop();
                     startGame(frame);
                 }
                 repaint();
@@ -25,7 +40,6 @@ public class Cutscene extends JPanel {
     }
 
     private void loadImages() {
-      
         cutsceneImages = new Image[3]; 
         cutsceneImages[0] = new ImageIcon("assets\\git\\cut2.gif").getImage();
         cutsceneImages[1] = new ImageIcon("assets\\git\\cut3.gif").getImage();
