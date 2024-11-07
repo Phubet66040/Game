@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -38,6 +41,7 @@ public class InitGameUI extends JPanel {
     private volatile boolean showStatic = false;
     private volatile boolean showJumpscare = false;
     private volatile boolean isHeartbeatPlaying = false;
+    private volatile boolean isWarningPlaying = false;
     //value
     private volatile int power = 100;
     private volatile int resources = 5;
@@ -61,11 +65,13 @@ public class InitGameUI extends JPanel {
     private final Rectangle baseMonitorArea;
     //eventtrck
     private Clip heartbeatClip;
+    private Clip warningClip;
     private final Random random = new Random();
     private final Map<Integer, AtomicBoolean> monsterLocations;
     private final List<Image> randomImages = new ArrayList<>();
     private JFrame frame;
     private final Map<Integer, Image> cameraGhostImages = new HashMap<>();
+     private ScheduledExecutorService scheduler;
 
     public InitGameUI(JFrame frame) {
         this.frame = frame;
@@ -124,6 +130,8 @@ public class InitGameUI extends JPanel {
     private void initializeGame() {
         startGameTimers();
         setupClickHandlers();
+        scheduler = Executors.newScheduledThreadPool(1);
+        
     }
 
     //onclickevent
@@ -271,60 +279,17 @@ public class InitGameUI extends JPanel {
         });
     }
 
-    //event mongotcom
-    private void updateMonsterPositions() {
-        monsterLocations.forEach((key, value) -> value.set(false));
-        if (random.nextInt(100) < 50) {
-            int newLocation = random.nextInt(4);
-            monsterLocations.get(newLocation).set(true);
-            if (newLocation == 0 || newLocation == 1) {
-                isMonsterNear = true;
-                if (!isHeartbeatPlaying) {
-                    heartbeatClip.setFramePosition(0);
-                    if (newLocation == 0) {
-                        setClipVolume(heartbeatClip, 1.0f);
-                    } else if (newLocation == 1) {
-                        setClipVolume(heartbeatClip, 0.5f);
-                    }
-                    heartbeatClip.start();
-                    isHeartbeatPlaying = true;
-                }
-                if (newLocation == 0 && !isDoorLocked) {
-                    Timer attackTimer = new Timer(1000, e -> {
-                        SwingUtilities.invokeLater(() -> {
-                            if (!isDoorLocked) {
-                                gameOver("The monster got in!");
-                            }
-                            ((Timer) e.getSource()).stop();
-                        });
-                    });
-                    attackTimer.setRepeats(false);
-                    attackTimer.start();
-                }
-            } else {
-                isMonsterNear = false;
-                if (isHeartbeatPlaying) {
-                    heartbeatClip.stop();
-                    isHeartbeatPlaying = false;
-                }
-            }
-        } else {
-            isMonsterNear = false;
-            if (isHeartbeatPlaying) {
-                heartbeatClip.stop();
-                isHeartbeatPlaying = false;
-            }
-        }
-        repaint();
-    }
-
-    //soundmake
+    //event mon 
     private void initializeAudio() {
         try {
-            File heartbeatFile = new File("assets\\sound\\sa.wav");
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(heartbeatFile);
+            File heartbeatFile = new File("assets\\sound\\herat.wav");
+            AudioInputStream heartbeatStream = AudioSystem.getAudioInputStream(heartbeatFile);
             heartbeatClip = AudioSystem.getClip();
-            heartbeatClip.open(audioInputStream);
+            heartbeatClip.open(heartbeatStream);
+            File warningFile = new File("assets\\sound\\warniing.wav");
+            AudioInputStream warningStream = AudioSystem.getAudioInputStream(warningFile);
+            warningClip = AudioSystem.getClip();
+            warningClip.open(warningStream);
             heartbeatClip.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) {
                     isHeartbeatPlaying = false;
@@ -335,10 +300,75 @@ public class InitGameUI extends JPanel {
                     }
                 }
             });
+            warningClip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    isWarningPlaying = false;
+                }
+            });
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            System.err.println("Error" + e.getMessage());
+            System.err.println("Error loading audio files: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void playWarningAndThenUpdate(int newLocation) {
+        if (!isWarningPlaying && warningClip != null) {
+            warningClip.setFramePosition(0);
+            setClipVolume(warningClip, 0.7f); 
+            warningClip.start();
+            isWarningPlaying = true;
+        }
+        scheduler.schedule(() -> {
+            SwingUtilities.invokeLater(() -> {
+                updateMonsterPosition(newLocation);
+            });
+        }, 6 + random.nextInt(2), TimeUnit.MILLISECONDS); 
+    }
+    //event monter check near sound
+    private void updateMonsterPosition(int newLocation) {
+        monsterLocations.get(newLocation).set(true);
+        if (newLocation == 0 || newLocation == 1) {
+            isMonsterNear = true;
+            if (!isHeartbeatPlaying) {
+                heartbeatClip.setFramePosition(0);
+                if (newLocation == 0) {
+                    setClipVolume(heartbeatClip, 1.0f);
+                } else if (newLocation == 1) {
+                    setClipVolume(heartbeatClip, 0.5f);
+                }
+                heartbeatClip.start();
+                isHeartbeatPlaying = true;
+            }
+
+            if (newLocation == 0 && !isDoorLocked) {
+                Timer attackTimer = new Timer(1000, e -> {
+                    SwingUtilities.invokeLater(() -> {
+                        if (!isDoorLocked) {
+                            gameOver("The monster got in!");
+                        }
+                        ((Timer) e.getSource()).stop();
+                    });
+                });
+                attackTimer.setRepeats(false);
+                attackTimer.start();
+            }
+        }
+    }
+    //event mongotcom and re
+    private void updateMonsterPositions() {
+        monsterLocations.forEach((key, value) -> value.set(false));
+    
+        if (random.nextInt(100) < 50) {
+            int newLocation = random.nextInt(4);
+            playWarningAndThenUpdate(newLocation);
+        } else {
+            isMonsterNear = false;
+            if (isHeartbeatPlaying) {
+                heartbeatClip.stop();
+                isHeartbeatPlaying = false;
+            }
+        }
+        repaint();
     }
 
     private void setClipVolume(Clip clip, float volume) {
@@ -346,12 +376,6 @@ public class InitGameUI extends JPanel {
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
             gainControl.setValue(Math.max(gainControl.getMinimum(), Math.min(gainControl.getMaximum(), dB)));
-        }
-    }
-
-    public void cleanup() {
-        if (heartbeatClip != null) {
-            heartbeatClip.close();
         }
     }
 
