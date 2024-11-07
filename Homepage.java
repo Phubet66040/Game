@@ -1,8 +1,8 @@
-import javax.sound.sampled.*;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import javax.sound.sampled.*;
+import javax.swing.*;
 
 public class Homepage extends JPanel {
     private JButton startButton, settingButton, exitButton;

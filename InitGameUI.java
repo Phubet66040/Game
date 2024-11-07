@@ -551,7 +551,6 @@ public class InitGameUI extends JPanel {
         frame.add(hall);                     
         frame.revalidate();                  
         frame.repaint();                    
-        
         frame.setVisible(true);               
     }
     
