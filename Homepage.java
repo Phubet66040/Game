@@ -151,7 +151,9 @@ public class Homepage extends JPanel {
             clip.start();
         }
     }
-
+    public void updateGameSettings(){
+        
+    }
     public static void main(String[] args) {
         JFrame frame = new JFrame("The Last Refuge");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

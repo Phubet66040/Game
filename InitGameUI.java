@@ -306,7 +306,7 @@ public class InitGameUI extends JPanel {
                 }
             });
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            System.err.println("Error loading audio files: " + e.getMessage());
+            System.err.println("Error " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -322,7 +322,7 @@ public class InitGameUI extends JPanel {
             SwingUtilities.invokeLater(() -> {
                 updateMonsterPosition(newLocation);
             });
-        }, 6 + random.nextInt(2), TimeUnit.MILLISECONDS); 
+        }, 3000, TimeUnit.MILLISECONDS); 
     }
     //event monter check near sound
     private void updateMonsterPosition(int newLocation) {
@@ -379,22 +379,31 @@ public class InitGameUI extends JPanel {
         }
     }
 
+    public void cleanup() {
+        if (heartbeatClip != null) {
+            heartbeatClip.close();
+        }
+        if (warningClip != null) {
+            warningClip.close();
+        }
+    }
+
     //eventgameover
     public void gameOver(String reason) {
         stopTimers();
         showJumpscare = true;
         playSound("assets\\sound\\Jumpsc.wav");
-        Timer jumpscareTimer = new Timer(3000, e -> {
+        cleanup();
+        Timer jumpscareTimer = new Timer(2500, e -> {
             showJumpscare = false;
             repaint();
-            ((Timer) e.getSource()).stop();
             gameMessage.setText("Game Over: " + reason);
             JOptionPane.showMessageDialog(this, "Game Over: " + reason);
-
             frame.getContentPane().removeAll();
             frame.add(new Homepage(frame));
             frame.revalidate();
             frame.repaint();
+            ((Timer) e.getSource()).stop();
         });
         jumpscareTimer.setRepeats(false);
         jumpscareTimer.start();
@@ -408,6 +417,7 @@ public class InitGameUI extends JPanel {
         gameMessage.setText("You survived the night!");
         JOptionPane.showMessageDialog(this, "You survived the night!");
         //fff
+        cleanup();
         frame.getContentPane().removeAll();
         frame.add(new Homepage(frame));
         frame.revalidate();
