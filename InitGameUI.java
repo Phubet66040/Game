@@ -138,7 +138,7 @@ public class InitGameUI extends JPanel {
     }
 
     private void initializePauseButton() {
-        Rectangle pauseButtonArea = new Rectangle(10, 10, 30, 30);
+        Rectangle pauseButtonArea = new Rectangle(1000, 0, 50, 50);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -667,8 +667,8 @@ public class InitGameUI extends JPanel {
             g.setColor(Color.BLACK); 
         }
         
-        g.fillRect(10, 10, 10, 30); 
-        g.fillRect(25, 10, 10, 30); 
+        g.fillRect(1000, 10, 10, 30); 
+        g.fillRect(1025, 10, 10, 30); 
 
         if (showJumpscare) {
             g2d.drawImage(jumpscareImage, 0, 0, getWidth(), getHeight(), this);
